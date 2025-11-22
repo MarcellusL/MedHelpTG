@@ -132,3 +132,12 @@ All colors MUST be HSL.
     @apply bg-background text-foreground;
   }
 }
+
+@layer utilities {
+  .perspective-distant {
+    perspective: 2000px;
+  }
+  .transform-3d {
+    transform-style: preserve-3d;
+  }
+}
