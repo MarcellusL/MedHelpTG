@@ -85,13 +85,10 @@ const Home = () => {
           </p>
         </div>
 
-        {/* Main Language Prompt Card */}
-        <Card className="max-w-3xl mx-auto p-12 md:p-16 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card/80 backdrop-blur-sm mb-16">
+        {/* Main Language Prompt Section */}
+        <div className="max-w-3xl mx-auto mb-16">
           <div className="space-y-8">
             <div className="text-center">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-6">
-                <Sparkles className="h-10 w-10 text-primary-foreground" />
-              </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4">Ask Me Anything</h2>
               <p className="text-muted-foreground text-base md:text-lg">
                 Get instant help with language learning, translations, or medical assessments
@@ -104,12 +101,12 @@ const Home = () => {
                   placeholder="Type your question"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="flex-1 bg-background/50 h-12 text-base"
+                  className="flex-1 h-14 text-base shadow-lg border-border/50 bg-background"
                 />
                 <Button 
                   type="submit"
                   size="icon"
-                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12"
+                  className="bg-gradient-to-r from-primary to-primary-glow h-14 w-14 shadow-lg"
                   disabled={!prompt.trim()}
                 >
                   <Send className="h-5 w-5" />
@@ -132,7 +129,7 @@ const Home = () => {
               </Card>
             )}
           </div>
-        </Card>
+        </div>
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
