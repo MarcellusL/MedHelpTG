@@ -1,1 +1,93 @@
+# OS files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.venv/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.pydevproject
+.settings/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+*.ipynb
+
+# Machine Learning - Model files
+*.h5
+*.keras
+*.joblib
+*.pkl
+*.pth
+*.pt
+*.ckpt
+*.pb
+*.tflite
+*.onnx
+saved_model/
+checkpoints/
+
+# Evaluation outputs
+evaluation_report.txt
+confusion_matrix.png
+training_history.png
+*.log
+
+# Flask
+instance/
+.webassets-cache
+uploads/
+*.db
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Dataset (uncomment if dataset is large and shouldn't be tracked)
+# Wound_dataset/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.cache
