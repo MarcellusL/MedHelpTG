@@ -26,7 +26,7 @@ const Header = () => {
             variant="default"
             size="default"
             className="gap-2"
-            onClick={() => window.open('https://t.me/your_bot_username', '_blank')}
+            onClick={() => window.open('#', '_blank')}
           >
             <Send className="h-4 w-4" />
             Chat on Telegram
