@@ -86,47 +86,47 @@ const Home = () => {
         </div>
 
         {/* Main Language Prompt Card */}
-        <Card className="max-w-2xl mx-auto p-8 md:p-12 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card/80 backdrop-blur-sm mb-8">
-          <div className="space-y-6">
+        <Card className="max-w-3xl mx-auto p-12 md:p-16 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card/80 backdrop-blur-sm mb-16">
+          <div className="space-y-8">
             <div className="text-center">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-4">
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-6">
                 <Sparkles className="h-10 w-10 text-primary-foreground" />
               </div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-3">Ask Me Anything</h2>
-              <p className="text-muted-foreground">
+              <h2 className="text-2xl md:text-3xl font-bold mb-4">Ask Me Anything</h2>
+              <p className="text-muted-foreground text-base md:text-lg">
                 Get instant help with language learning, translations, or medical assessments
               </p>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex gap-2">
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="flex gap-3">
                 <Input
-                  placeholder="Type your question... (e.g., 'How do you say hello in Spanish?' or 'I have a skin irritation')"
+                  placeholder="Type your question"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="flex-1 bg-background/50"
+                  className="flex-1 bg-background/50 h-12 text-base"
                 />
                 <Button 
                   type="submit"
                   size="icon"
-                  className="bg-gradient-to-r from-primary to-primary-glow"
+                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12"
                   disabled={!prompt.trim()}
                 >
-                  <Send className="h-4 w-4" />
+                  <Send className="h-5 w-5" />
                 </Button>
               </div>
             </form>
 
             {showImagePrompt && (
-              <Card className="p-4 bg-primary/10 border-primary/20">
-                <p className="text-sm text-foreground mb-3 text-center">
+              <Card className="p-6 bg-primary/10 border-primary/20">
+                <p className="text-sm text-foreground mb-4 text-center">
                   📸 For accurate medical assessment, please scan an image of the affected area
                 </p>
                 <Button
                   onClick={handleScanImage}
-                  className="w-full bg-gradient-to-r from-primary to-primary-glow"
+                  className="w-full bg-gradient-to-r from-primary to-primary-glow h-11"
                 >
-                  <Camera className="mr-2 h-4 w-4" />
+                  <Camera className="mr-2 h-5 w-5" />
                   Scan Image Now
                 </Button>
               </Card>
