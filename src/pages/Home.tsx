@@ -1,13 +1,62 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Camera, MapPin, Sparkles, Shield } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Camera, MapPin, Sparkles, Shield, Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { CometCard } from "@/components/ui/comet-card";
 import heroBackground from "@/assets/healthcare-hero-bg.jpg";
 
 const Home = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  const [prompt, setPrompt] = useState("");
+  const [showImagePrompt, setShowImagePrompt] = useState(false);
+
+  const medicalKeywords = [
+    "skin irritation",
+    "wounds on skin",
+    "wound",
+    "injury",
+    "cut",
+    "burn",
+    "bruise",
+    "laceration",
+    "abrasion",
+    "rash",
+    "infection",
+    "bleeding"
+  ];
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const lowerPrompt = prompt.toLowerCase();
+    const hasMedicalKeyword = medicalKeywords.some(keyword => 
+      lowerPrompt.includes(keyword)
+    );
+
+    if (hasMedicalKeyword) {
+      setShowImagePrompt(true);
+      toast({
+        title: "Medical Image Recommended",
+        description: "For wound or skin-related queries, we recommend uploading an image for accurate assessment.",
+      });
+    } else {
+      toast({
+        title: "Language Learning Mode",
+        description: `Processing: "${prompt}"`,
+      });
+      setPrompt("");
+      setShowImagePrompt(false);
+    }
+  };
+
+  const handleScanImage = () => {
+    navigate("/upload");
+  };
 
   return (
     <div className="min-h-screen relative">
@@ -28,33 +77,60 @@ const Home = () => {
           <div className="flex items-center justify-center mb-4">
             <Sparkles className="h-12 w-12 text-primary mr-3" />
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-              NexaHealth
+              NexaLearn
             </h1>
           </div>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Smart wound assessment powered by AI. Get instant severity analysis and find the nearest appropriate healthcare facility.
+            AI-powered language learning and medical assessment. Ask anything or scan wounds for instant analysis.
           </p>
         </div>
 
-        {/* Main CTA Card */}
+        {/* Main Language Prompt Card */}
         <Card className="max-w-2xl mx-auto p-8 md:p-12 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card/80 backdrop-blur-sm mb-8">
-          <div className="text-center space-y-6">
-            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center">
-              <Camera className="h-10 w-10 text-primary-foreground" />
-            </div>
-            <div>
-              <h2 className="text-2xl md:text-3xl font-bold mb-3">Start Wound Assessment</h2>
+          <div className="space-y-6">
+            <div className="text-center">
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-4">
+                <Sparkles className="h-10 w-10 text-primary-foreground" />
+              </div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">Ask Me Anything</h2>
               <p className="text-muted-foreground">
-                Upload an image of your wound and answer a few questions for instant triage guidance
+                Get instant help with language learning, translations, or medical assessments
               </p>
             </div>
-            <Button 
-              size="lg" 
-              className="w-full md:w-auto text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
-              onClick={() => navigate("/upload")}
-            >
-              Scan Wound Now
-            </Button>
+            
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex gap-2">
+                <Input
+                  placeholder="Type your question... (e.g., 'How do you say hello in Spanish?' or 'I have a skin irritation')"
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="flex-1 bg-background/50"
+                />
+                <Button 
+                  type="submit"
+                  size="icon"
+                  className="bg-gradient-to-r from-primary to-primary-glow"
+                  disabled={!prompt.trim()}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+              </div>
+            </form>
+
+            {showImagePrompt && (
+              <Card className="p-4 bg-primary/10 border-primary/20">
+                <p className="text-sm text-foreground mb-3 text-center">
+                  📸 For accurate medical assessment, please scan an image of the affected area
+                </p>
+                <Button
+                  onClick={handleScanImage}
+                  className="w-full bg-gradient-to-r from-primary to-primary-glow"
+                >
+                  <Camera className="mr-2 h-4 w-4" />
+                  Scan Image Now
+                </Button>
+              </Card>
+            )}
           </div>
         </Card>
 
@@ -66,9 +142,9 @@ const Home = () => {
                 <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                   <Camera className="h-7 w-7 text-primary" />
                 </div>
-                <h3 className="font-semibold text-lg">AI Classification</h3>
+                <h3 className="font-semibold text-lg">Image Classification</h3>
                 <p className="text-sm text-muted-foreground">
-                  Advanced ML model identifies wound types with high accuracy
+                  Advanced AI analyzes wound images when you mention skin irritation or wounds
                 </p>
               </div>
             </Card>
@@ -82,7 +158,7 @@ const Home = () => {
                 </div>
                 <h3 className="font-semibold text-lg">Smart Triage</h3>
                 <p className="text-sm text-muted-foreground">
-                  Combines image analysis with symptoms for accurate severity assessment
+                  Get personalized recommendations for urgent care, ER, or home treatment
                 </p>
               </div>
             </Card>
@@ -96,7 +172,7 @@ const Home = () => {
                 </div>
                 <h3 className="font-semibold text-lg">Find Care</h3>
                 <p className="text-sm text-muted-foreground">
-                  Locate nearest appropriate facility based on your location
+                  Locate nearest appropriate facility based on your needs
                 </p>
               </div>
             </Card>
