@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Slider } from "@/components/ui/slider";
-import { ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ArrowLeft, ArrowRight, AlertCircle, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 
@@ -15,6 +16,15 @@ const Symptoms = () => {
   const [painLevel, setPainLevel] = useState(5);
   const [bleeding, setBleeding] = useState<string>("none");
   const [swelling, setSwelling] = useState<string>("no");
+  const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [showImageDialog, setShowImageDialog] = useState(false);
+
+  useEffect(() => {
+    const imageData = sessionStorage.getItem('woundImage');
+    if (imageData) {
+      setUploadedImage(imageData);
+    }
+  }, []);
 
   const handleSubmit = async () => {
     const imageData = sessionStorage.getItem('woundImage');
@@ -61,6 +71,31 @@ const Symptoms = () => {
             Answer these questions to help determine severity
           </p>
         </div>
+
+        {/* Uploaded Image Preview */}
+        {uploadedImage && (
+          <Card className="max-w-2xl mx-auto p-6 shadow-[var(--shadow-card)] mb-6">
+            <div className="space-y-3">
+              <Label className="text-lg font-semibold">Uploaded Image</Label>
+              <div 
+                className="relative group cursor-pointer rounded-lg overflow-hidden border-2 border-border hover:border-primary transition-colors"
+                onClick={() => setShowImageDialog(true)}
+              >
+                <img 
+                  src={uploadedImage} 
+                  alt="Uploaded wound" 
+                  className="w-full h-48 object-cover"
+                />
+                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <div className="text-white text-center">
+                    <Eye className="h-8 w-8 mx-auto mb-2" />
+                    <p className="text-sm font-medium">Click to view full size</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Card>
+        )}
 
         {/* Symptoms Card */}
         <Card className="max-w-2xl mx-auto p-8 shadow-[var(--shadow-elevated)]">
@@ -185,6 +220,22 @@ const Symptoms = () => {
             </div>
           </div>
         </Card>
+
+        {/* Image Dialog */}
+        <Dialog open={showImageDialog} onOpenChange={setShowImageDialog}>
+          <DialogContent className="max-w-4xl">
+            <DialogHeader>
+              <DialogTitle>Uploaded Image</DialogTitle>
+            </DialogHeader>
+            <div className="w-full">
+              <img 
+                src={uploadedImage || ""} 
+                alt="Uploaded wound full size" 
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
     </div>
   );
