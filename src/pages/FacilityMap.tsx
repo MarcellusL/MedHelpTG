@@ -95,7 +95,7 @@ const FacilityMap = () => {
   }, [navigate, toast]);
 
   const getGoogleMapsUrl = (facility: Facility) => {
-    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(facility.name)}&query=${facility.lat},${facility.lng}`;
+    return `https://www.google.com/maps/search/?api=1&query=${facility.lat},${facility.lng}`;
   };
 
   const getDirectionsUrl = (facility: Facility) => {
