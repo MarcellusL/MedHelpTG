@@ -16,7 +16,7 @@ const Home = () => {
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ backgroundImage: `url(${heroBackground})` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-br from-background/95 via-background/90 to-background/85 backdrop-blur-sm" />
+        <div className="absolute inset-0 bg-gradient-to-br from-background/60 via-background/50 to-background/40" />
       </div>
       
       {/* Content */}
