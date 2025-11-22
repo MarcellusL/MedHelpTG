@@ -59,43 +59,43 @@ const Home = () => {
         </Card>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <CometCard className="h-full">
-            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 h-full">
-              <div className="flex flex-col items-center text-center space-y-3 h-full">
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
+          <CometCard className="flex">
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 w-full">
+              <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
                 <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
                   <Camera className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="font-semibold text-lg">AI Classification</h3>
-                <p className="text-sm text-muted-foreground flex-grow">
+                <p className="text-sm text-muted-foreground">
                   Advanced ML model identifies wound types with high accuracy
                 </p>
               </div>
             </Card>
           </CometCard>
 
-          <CometCard className="h-full">
-            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 h-full">
-              <div className="flex flex-col items-center text-center space-y-3 h-full">
+          <CometCard className="flex">
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 w-full">
+              <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
                 <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center flex-shrink-0">
                   <Shield className="h-7 w-7 text-secondary" />
                 </div>
                 <h3 className="font-semibold text-lg">Smart Triage</h3>
-                <p className="text-sm text-muted-foreground flex-grow">
+                <p className="text-sm text-muted-foreground">
                   Combines image analysis with symptoms for accurate severity assessment
                 </p>
               </div>
             </Card>
           </CometCard>
 
-          <CometCard className="h-full">
-            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 h-full">
-              <div className="flex flex-col items-center text-center space-y-3 h-full">
-                <div className="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center flex-shrink-0">
-                  <MapPin className="h-7 w-7 text-accent" />
+          <CometCard className="flex">
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 w-full">
+              <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-7 w-7 text-primary" />
                 </div>
                 <h3 className="font-semibold text-lg">Find Care</h3>
-                <p className="text-sm text-muted-foreground flex-grow">
+                <p className="text-sm text-muted-foreground">
                   Locate nearest appropriate facility based on your location
                 </p>
               </div>
