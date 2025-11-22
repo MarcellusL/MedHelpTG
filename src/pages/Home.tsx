@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { Camera, MapPin, Sparkles, Shield, Send } from "lucide-react";
+import { Camera, MapPin, Sparkles, Shield, Send, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { CometCard } from "@/components/ui/comet-card";
@@ -14,6 +14,7 @@ const Home = () => {
   const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
   const [showImagePrompt, setShowImagePrompt] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const medicalKeywords = [
     "skin irritation",
@@ -56,6 +57,38 @@ const Home = () => {
 
   const handleScanImage = () => {
     navigate("/upload");
+  };
+
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type
+    if (!file.type.startsWith("image/")) {
+      toast({
+        title: "Invalid File",
+        description: "Please upload an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File Too Large",
+        description: "Please upload an image smaller than 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      sessionStorage.setItem("woundImage", reader.result as string);
+      navigate("/symptoms");
+    };
+    reader.readAsDataURL(file);
   };
 
   return (
@@ -106,6 +139,22 @@ const Home = () => {
                   onChange={(e) => setPrompt(e.target.value)}
                   className="flex-1 bg-background/50 h-12 text-base"
                 />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <Button 
+                  type="button"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12"
+                  title="Upload image for classification"
+                >
+                  <Upload className="h-5 w-5" />
+                </Button>
                 <Button 
                   type="submit"
                   size="icon"
