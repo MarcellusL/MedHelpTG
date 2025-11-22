@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Camera, MapPin, Activity, Shield } from "lucide-react";
 import Header from "@/components/Header";
+import { CometCard } from "@/components/ui/comet-card";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -48,41 +49,47 @@ const Home = () => {
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-          <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center">
-                <Camera className="h-7 w-7 text-primary" />
+          <CometCard>
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center">
+                  <Camera className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg">AI Classification</h3>
+                <p className="text-sm text-muted-foreground">
+                  Advanced ML model identifies wound types with high accuracy
+                </p>
               </div>
-              <h3 className="font-semibold text-lg">AI Classification</h3>
-              <p className="text-sm text-muted-foreground">
-                Advanced ML model identifies wound types with high accuracy
-              </p>
-            </div>
-          </Card>
+            </Card>
+          </CometCard>
 
-          <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center">
-                <Shield className="h-7 w-7 text-secondary" />
+          <CometCard>
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center">
+                  <Shield className="h-7 w-7 text-secondary" />
+                </div>
+                <h3 className="font-semibold text-lg">Smart Triage</h3>
+                <p className="text-sm text-muted-foreground">
+                  Combines image analysis with symptoms for accurate severity assessment
+                </p>
               </div>
-              <h3 className="font-semibold text-lg">Smart Triage</h3>
-              <p className="text-sm text-muted-foreground">
-                Combines image analysis with symptoms for accurate severity assessment
-              </p>
-            </div>
-          </Card>
+            </Card>
+          </CometCard>
 
-          <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50">
-            <div className="flex flex-col items-center text-center space-y-3">
-              <div className="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center">
-                <MapPin className="h-7 w-7 text-accent" />
+          <CometCard>
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50">
+              <div className="flex flex-col items-center text-center space-y-3">
+                <div className="w-14 h-14 bg-accent/10 rounded-full flex items-center justify-center">
+                  <MapPin className="h-7 w-7 text-accent" />
+                </div>
+                <h3 className="font-semibold text-lg">Find Care</h3>
+                <p className="text-sm text-muted-foreground">
+                  Locate nearest appropriate facility based on your location
+                </p>
               </div>
-              <h3 className="font-semibold text-lg">Find Care</h3>
-              <p className="text-sm text-muted-foreground">
-                Locate nearest appropriate facility based on your location
-              </p>
-            </div>
-          </Card>
+            </Card>
+          </CometCard>
         </div>
 
         {/* Disclaimer */}
