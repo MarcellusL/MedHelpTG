@@ -11,54 +11,58 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Professional clean theme */
-    --background: 0 0% 100%;
-    --foreground: 222 47% 11%;
+    /* Medical theme - Professional blues and healing greens */
+    --background: 240 4% 95%;
+    --foreground: 240 5% 10%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card: 0 0% 98%;
+    --card-foreground: 240 5% 10%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover: 240 5% 90%;
+    --popover-foreground: 240 5% 10%;
 
-    /* Professional primary - trust and clarity */
-    --primary: 221 83% 53%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 221 83% 60%;
+    /* Medical blue - trust and professionalism */
+    --primary: 333 71% 50%;
+    --primary-foreground: 327 73% 97%;
+    --primary-glow: 205 87% 65%;
 
-    /* Subtle secondary */
-    --secondary: 214 32% 91%;
-    --secondary-foreground: 222 47% 11%;
+    /* Healing teal - calm and recovery */
+    --secondary: 240 5% 33%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 210 40% 96%;
-    --muted-foreground: 215 16% 47%;
+    --muted: 240 4% 83%;
+    --muted-foreground: 240 5% 10%;
 
-    --accent: 210 40% 96%;
-    --accent-foreground: 222 47% 11%;
+    --accent: 355 100% 97%;
+    --accent-foreground: 349 89% 60%;
 
-    /* Severity levels - professional and clear */
-    --success: 142 71% 45%;
+    /* Severity levels */
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
     --warning: 38 92% 50%;
     --warning-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
-    --destructive-foreground: 0 0% 100%;
+    --destructive: 0 72% 50%;
+    --destructive-foreground: 0 85% 97%;
 
     --urgent: 14 91% 55%;
     --urgent-foreground: 0 0% 100%;
 
-    --border: 214 32% 91%;
-    --input: 214 32% 91%;
-    --ring: 221 83% 53%;
+    --border: 240 4% 83%;
+    --input: 240 4% 83%;
+    --ring: 333 71% 50%;
 
-    --radius: 0.5rem;
+    --radius: 1.5rem;
 
-    /* Professional shadows - subtle and refined */
-    --shadow-card: 0 1px 3px 0 hsl(0 0% 0% / 0.1), 0 1px 2px -1px hsl(0 0% 0% / 0.1);
-    --shadow-elevated: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    /* Medical gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(205 87% 48%), hsl(205 87% 65%));
+    --gradient-healing: linear-gradient(135deg, hsl(174 44% 51%), hsl(174 44% 68%));
+    --gradient-urgent: linear-gradient(135deg, hsl(14 91% 55%), hsl(38 92% 50%));
+
+    /* Shadows for depth */
+    --shadow-card: 0 2px 8px -2px hsl(215 25% 27% / 0.1);
+    --shadow-elevated: 0 8px 24px -4px hsl(215 25% 27% / 0.15);
 
     /* Animations */
     --transition-smooth: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -119,36 +123,36 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    --background: 240 5% 10%;
+    --foreground: 0 0% 98%;
 
-    --card: 217 33% 17%;
-    --card-foreground: 210 40% 98%;
+    --card: 240 3% 15%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 217 33% 17%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 240 5% 26%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 217 91% 60%;
-    --primary-foreground: 222 47% 11%;
-    --primary-glow: 217 91% 65%;
+    --primary: 328 85% 70%;
+    --primary-foreground: 336 83% 17%;
+    --primary-glow: 205 87% 70%;
 
-    --secondary: 217 33% 17%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 240 3% 46%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 223 47% 11%;
-    --muted-foreground: 215 20% 65%;
+    --muted: 240 3% 46%;
+    --muted-foreground: 0 0% 98%;
 
-    --accent: 216 34% 17%;
-    --accent-foreground: 210 40% 98%;
+    --accent: 343 87% 15%;
+    --accent-foreground: 351 94% 71%;
 
-    --success: 142 71% 45%;
-    --warning: 38 92% 50%;
+    --success: 142 76% 40%;
+    --warning: 38 92% 55%;
     --destructive: 0 84% 60%;
-    --urgent: 14 91% 55%;
+    --urgent: 14 91% 60%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
-    --ring: 224 71% 61%;
+    --border: 240 5% 33%;
+    --input: 240 5% 33%;
+    --ring: 328 85% 70%;
     --sidebar-background: 240 5.9% 10%;
     --sidebar-foreground: 0 0% 98%;
     --sidebar-primary: 328 85% 70%;

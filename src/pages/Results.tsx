@@ -111,12 +111,12 @@ const Results = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
         <Header />
         <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-          <Card className="p-10 text-center border border-border shadow-[var(--shadow-card)]">
-            <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
-            <p className="text-lg font-semibold text-foreground">Analyzing wound...</p>
+          <Card className="p-8 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-lg font-medium">Analyzing wound...</p>
             <p className="text-sm text-muted-foreground mt-2">This may take a moment</p>
           </Card>
         </div>
@@ -129,9 +129,9 @@ const Results = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
       <Header />
-      <div className="container mx-auto px-4 py-8 md:py-12">
+      <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Button variant="ghost" onClick={() => navigate("/")} className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -155,7 +155,7 @@ const Results = () => {
           )}
 
           {/* Classification Results */}
-          <Card className="p-6 shadow-[var(--shadow-card)] border border-border">
+          <Card className="p-6 shadow-[var(--shadow-elevated)]">
             <h2 className="text-xl font-bold mb-4">Classification</h2>
             <div className="space-y-3">
               <div className="flex justify-between items-center">
@@ -172,7 +172,7 @@ const Results = () => {
           </Card>
 
           {/* Severity Assessment */}
-          <Card className={`p-6 shadow-[var(--shadow-card)] border-2 ${getSeverityColor(result.severity)}`}>
+          <Card className={`p-6 shadow-[var(--shadow-elevated)] border-2 ${getSeverityColor(result.severity)} border-opacity-30`}>
             <div className="flex items-center gap-3 mb-4">
               {getSeverityIcon(result.severity)}
               <h2 className="text-xl font-bold">Severity Assessment</h2>
@@ -189,7 +189,7 @@ const Results = () => {
           {result.severity !== "SelfCare" && (
             <Button
               size="lg"
-              className="w-full h-12 text-base font-medium"
+              className="w-full bg-gradient-to-r from-primary to-primary-glow text-lg py-6"
               onClick={() => {
                 sessionStorage.setItem('severityType', result.severity);
                 navigate("/facility-map");
@@ -201,9 +201,9 @@ const Results = () => {
           )}
 
           {/* Disclaimer */}
-          <Card className="p-5 bg-muted border border-border">
-            <p className="text-sm text-muted-foreground text-center leading-relaxed">
-              <strong className="text-foreground font-medium">Disclaimer:</strong> This is an AI-assisted assessment tool and should not replace professional medical advice. 
+          <Card className="p-4 bg-muted/50 border-border/50">
+            <p className="text-xs text-muted-foreground text-center">
+              <strong className="text-foreground">Disclaimer:</strong> This is an AI-assisted assessment tool and should not replace professional medical advice. 
               If you have concerns about your wound or if symptoms worsen, please seek immediate medical attention.
             </p>
           </Card>

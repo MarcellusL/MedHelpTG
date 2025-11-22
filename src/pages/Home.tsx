@@ -10,90 +10,108 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
-      <Header />
-      <div className="container mx-auto px-4 py-12 md:py-20">
-        {/* Hero Section */}
-        <div className="text-center mb-16 max-w-3xl mx-auto">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 tracking-tight">
-            Smart Wound Assessment Powered by AI
-          </h1>
-          <p className="text-lg md:text-xl text-muted-foreground leading-relaxed">
-            Get instant severity analysis and find the nearest appropriate healthcare facility in minutes.
+    <div className="min-h-screen relative">
+      {/* Background Image with Overlay */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroBackground})` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-background/60 via-background/50 to-background/40" />
+      </div>
+      
+      {/* Content */}
+      <div className="relative z-10">
+        <Header />
+        <div className="container mx-auto px-4 py-8 md:py-16">
+        {/* Header */}
+        <div className="text-center mb-12">
+          <div className="flex items-center justify-center mb-4">
+            <Sparkles className="h-12 w-12 text-primary mr-3" />
+            <h1 className="text-4xl md:text-5xl font-bold text-foreground">
+              NexaHealth
+            </h1>
+          </div>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            Smart wound assessment powered by AI. Get instant severity analysis and find the nearest appropriate healthcare facility.
           </p>
         </div>
 
-        {/* Main CTA */}
-        <div className="max-w-2xl mx-auto mb-20">
-          <Card className="p-8 md:p-10 shadow-[var(--shadow-elevated)] border border-border">
-            <div className="text-center space-y-6">
-              <div className="mx-auto w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center">
-                <Camera className="h-8 w-8 text-primary" />
-              </div>
-              <div>
-                <h2 className="text-2xl md:text-3xl font-semibold mb-3 text-foreground">Start Your Assessment</h2>
-                <p className="text-muted-foreground text-base">
-                  Upload an image of your wound and answer a few questions for instant triage guidance
-                </p>
-              </div>
-              <Button 
-                size="lg" 
-                className="w-full sm:w-auto px-8 h-12 text-base font-medium"
-                onClick={() => navigate("/upload")}
-              >
-                Begin Assessment
-              </Button>
+        {/* Main CTA Card */}
+        <Card className="max-w-2xl mx-auto p-8 md:p-12 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card/80 backdrop-blur-sm mb-8">
+          <div className="text-center space-y-6">
+            <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center">
+              <Camera className="h-10 w-10 text-primary-foreground" />
             </div>
-          </Card>
-        </div>
+            <div>
+              <h2 className="text-2xl md:text-3xl font-bold mb-3">Start Wound Assessment</h2>
+              <p className="text-muted-foreground">
+                Upload an image of your wound and answer a few questions for instant triage guidance
+              </p>
+            </div>
+            <Button 
+              size="lg" 
+              className="w-full md:w-auto text-lg px-8 py-6 bg-gradient-to-r from-primary to-primary-glow hover:opacity-90 transition-opacity"
+              onClick={() => navigate("/upload")}
+            >
+              Scan Wound Now
+            </Button>
+          </div>
+        </Card>
 
         {/* Features Grid */}
-        <div className="grid md:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
-          <Card className="p-8 border border-border hover:shadow-[var(--shadow-card)] transition-shadow">
-            <div className="flex flex-col items-start space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Camera className="h-6 w-6 text-primary" />
+        <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
+          <CometCard className="flex">
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 w-full">
+              <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Camera className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg">AI Classification</h3>
+                <p className="text-sm text-muted-foreground">
+                  Advanced ML model identifies wound types with high accuracy
+                </p>
               </div>
-              <h3 className="font-semibold text-xl text-foreground">AI Classification</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Advanced ML model identifies wound types with high accuracy
-              </p>
-            </div>
-          </Card>
+            </Card>
+          </CometCard>
 
-          <Card className="p-8 border border-border hover:shadow-[var(--shadow-card)] transition-shadow">
-            <div className="flex flex-col items-start space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Shield className="h-6 w-6 text-primary" />
+          <CometCard className="flex">
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 w-full">
+              <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
+                <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <Shield className="h-7 w-7 text-secondary" />
+                </div>
+                <h3 className="font-semibold text-lg">Smart Triage</h3>
+                <p className="text-sm text-muted-foreground">
+                  Combines image analysis with symptoms for accurate severity assessment
+                </p>
               </div>
-              <h3 className="font-semibold text-xl text-foreground">Smart Triage</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Combines image analysis with symptoms for accurate severity assessment
-              </p>
-            </div>
-          </Card>
+            </Card>
+          </CometCard>
 
-          <Card className="p-8 border border-border hover:shadow-[var(--shadow-card)] transition-shadow">
-            <div className="flex flex-col items-start space-y-4">
-              <div className="w-12 h-12 bg-primary/10 rounded-lg flex items-center justify-center">
-                <MapPin className="h-6 w-6 text-primary" />
+          <CometCard className="flex">
+            <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-border/50 w-full">
+              <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
+                <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
+                  <MapPin className="h-7 w-7 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg">Find Care</h3>
+                <p className="text-sm text-muted-foreground">
+                  Locate nearest appropriate facility based on your location
+                </p>
               </div>
-              <h3 className="font-semibold text-xl text-foreground">Find Care</h3>
-              <p className="text-muted-foreground leading-relaxed">
-                Locate nearest appropriate facility based on your location
-              </p>
-            </div>
-          </Card>
+            </Card>
+          </CometCard>
         </div>
 
         {/* Disclaimer */}
-        <div className="max-w-4xl mx-auto">
-          <Card className="p-5 bg-muted border-border">
-            <p className="text-sm text-muted-foreground text-center leading-relaxed">
-              <strong className="text-foreground font-medium">Medical Disclaimer:</strong> This tool provides guidance only and is not a substitute for professional medical advice. 
+        <div className="mt-12 max-w-3xl mx-auto">
+          <Card className="p-4 bg-muted/50 border-border/50">
+            <p className="text-xs text-muted-foreground text-center">
+              <strong className="text-foreground">Medical Disclaimer:</strong> This tool provides guidance only and is not a substitute for professional medical advice. 
               In case of serious injury or emergency, call 911 immediately.
             </p>
           </Card>
+        </div>
         </div>
       </div>
     </div>
