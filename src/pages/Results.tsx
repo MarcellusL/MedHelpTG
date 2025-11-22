@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, AlertCircle, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import Header from "@/components/Header";
 
 interface AnalysisResult {
   woundType: string;
@@ -110,12 +111,15 @@ const Results = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10 flex items-center justify-center">
-        <Card className="p-8 text-center">
-          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-lg font-medium">Analyzing wound...</p>
-          <p className="text-sm text-muted-foreground mt-2">This may take a moment</p>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+        <Header />
+        <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
+          <Card className="p-8 text-center">
+            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-lg font-medium">Analyzing wound...</p>
+            <p className="text-sm text-muted-foreground mt-2">This may take a moment</p>
+          </Card>
+        </div>
       </div>
     );
   }
@@ -126,6 +130,7 @@ const Results = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+      <Header />
       <div className="container mx-auto px-4 py-8">
         <div className="mb-8">
           <Button variant="ghost" onClick={() => navigate("/")} className="mb-4">
