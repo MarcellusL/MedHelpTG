@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Camera, MapPin, Activity, Shield } from "lucide-react";
+import { Camera, MapPin, Sparkles, Shield } from "lucide-react";
 import Header from "@/components/Header";
 import { CometCard } from "@/components/ui/comet-card";
 
@@ -15,9 +15,9 @@ const Home = () => {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-4">
-            <Activity className="h-12 w-12 text-primary mr-3" />
+            <Sparkles className="h-12 w-12 text-primary mr-3" />
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-              WoundTriage AI
+              NexaHealth
             </h1>
           </div>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">

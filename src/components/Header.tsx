@@ -1,4 +1,4 @@
-import { Activity } from "lucide-react";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 
@@ -9,9 +9,9 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo/Brand */}
           <div className="flex items-center gap-2">
-            <Activity className="h-8 w-8 text-primary" />
+            <Sparkles className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">
-              WoundTriage AI
+              NexaHealth
             </h1>
           </div>
 
