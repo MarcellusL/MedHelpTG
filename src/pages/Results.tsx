@@ -172,15 +172,17 @@ const Results = () => {
           </Card>
 
           {/* Severity Assessment */}
-          <Card className={`p-6 shadow-[var(--shadow-elevated)] border-2 ${getSeverityColor(result.severity)} border-opacity-30`}>
+          <Card className="p-6 shadow-[var(--shadow-elevated)] border-2 border-border">
             <div className="flex items-center gap-3 mb-4">
-              {getSeverityIcon(result.severity)}
-              <h2 className="text-xl font-bold">Severity Assessment</h2>
+              <div className={`p-2 rounded-full ${getSeverityColor(result.severity)}`}>
+                {getSeverityIcon(result.severity)}
+              </div>
+              <h2 className="text-xl font-bold text-foreground">Severity Assessment</h2>
             </div>
             <Badge className={`${getSeverityColor(result.severity)} text-lg px-4 py-2 mb-4`}>
               {result.severity.replace(/([A-Z])/g, ' $1').trim()}
             </Badge>
-            <p className="text-foreground/90 leading-relaxed">
+            <p className="text-foreground leading-relaxed">
               {result.recommendation}
             </p>
           </Card>
