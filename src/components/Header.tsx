@@ -1,4 +1,4 @@
-import Logo from "@/components/Logo";
+import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 
@@ -9,7 +9,7 @@ const Header = () => {
         <div className="flex items-center justify-between">
           {/* Logo/Brand */}
           <div className="flex items-center gap-2">
-            <Logo className="h-8 w-8" />
+            <Sparkles className="h-8 w-8 text-primary" />
             <h1 className="text-2xl font-bold text-foreground">
               NexaHealth
             </h1>
