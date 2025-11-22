@@ -58,9 +58,9 @@ const UploadPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+    <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Header */}
         <div className="mb-8">
           <Button
@@ -80,7 +80,7 @@ const UploadPage = () => {
         </div>
 
         {/* Upload Card */}
-        <Card className="max-w-3xl mx-auto p-8 shadow-[var(--shadow-elevated)]">
+        <Card className="max-w-3xl mx-auto p-8 shadow-[var(--shadow-card)] border border-border">
           <div className="space-y-6">
             {/* Upload Area */}
             <div className="border-2 border-dashed border-border rounded-lg p-8 md:p-12 text-center hover:border-primary/50 transition-colors">
@@ -125,16 +125,28 @@ const UploadPage = () => {
             </div>
 
             {/* Guidelines */}
-            <Card className="p-4 bg-muted/50 border-border/50">
-              <h3 className="font-semibold mb-2 flex items-center">
+            <Card className="p-5 bg-muted border border-border">
+              <h3 className="font-semibold mb-3 flex items-center text-foreground">
                 <ImageIcon className="h-4 w-4 mr-2 text-primary" />
                 Image Guidelines
               </h3>
-              <ul className="text-sm text-muted-foreground space-y-1 ml-6">
-                <li>• Ensure good lighting</li>
-                <li>• Keep the wound in focus</li>
-                <li>• Include the entire affected area</li>
-                <li>• Avoid shadows or reflections</li>
+              <ul className="text-sm text-muted-foreground space-y-2">
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Ensure good lighting</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Keep the wound in focus</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Include the entire affected area</span>
+                </li>
+                <li className="flex items-start">
+                  <span className="mr-2">•</span>
+                  <span>Avoid shadows or reflections</span>
+                </li>
               </ul>
             </Card>
 
@@ -148,7 +160,7 @@ const UploadPage = () => {
                 Cancel
               </Button>
               <Button
-                className="flex-1 bg-gradient-to-r from-primary to-primary-glow"
+                className="flex-1 h-11"
                 onClick={handleContinue}
                 disabled={!selectedImage}
               >

@@ -41,9 +41,9 @@ const Symptoms = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+    <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         {/* Header */}
         <div className="mb-8">
           <Button
@@ -63,7 +63,7 @@ const Symptoms = () => {
         </div>
 
         {/* Symptoms Card */}
-        <Card className="max-w-2xl mx-auto p-8 shadow-[var(--shadow-elevated)]">
+        <Card className="max-w-2xl mx-auto p-8 shadow-[var(--shadow-card)] border border-border">
           <div className="space-y-8">
             {/* Pain Level */}
             <div className="space-y-4">
@@ -154,12 +154,12 @@ const Symptoms = () => {
             </div>
 
             {/* Warning */}
-            <Card className="p-4 bg-warning/10 border-warning/20">
+            <Card className="p-5 bg-warning/5 border border-warning/20">
               <div className="flex gap-3">
                 <AlertCircle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
                 <div className="text-sm">
-                  <p className="font-medium text-warning-foreground mb-1">Important</p>
-                  <p className="text-muted-foreground">
+                  <p className="font-semibold text-foreground mb-1">Important</p>
+                  <p className="text-muted-foreground leading-relaxed">
                     If you're experiencing severe bleeding, difficulty breathing, or signs of shock, call 911 immediately.
                   </p>
                 </div>
@@ -176,7 +176,7 @@ const Symptoms = () => {
                 Back
               </Button>
               <Button
-                className="flex-1 bg-gradient-to-r from-primary to-primary-glow"
+                className="flex-1 h-11"
                 onClick={handleSubmit}
               >
                 Analyze Wound

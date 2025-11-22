@@ -107,12 +107,12 @@ const FacilityMap = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+      <div className="min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center min-h-[calc(100vh-80px)]">
-          <Card className="p-8 text-center">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-primary mx-auto mb-4"></div>
-            <p className="text-lg font-medium">Finding nearby facilities...</p>
+          <Card className="p-10 text-center border border-border shadow-[var(--shadow-card)]">
+            <div className="animate-spin rounded-full h-12 w-12 border-2 border-primary border-t-transparent mx-auto mb-4"></div>
+            <p className="text-lg font-semibold text-foreground">Finding nearby facilities...</p>
           </Card>
         </div>
       </div>
@@ -120,9 +120,9 @@ const FacilityMap = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-primary/5 to-secondary/10">
+    <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 md:py-12">
         <div className="mb-8">
           <Button variant="ghost" onClick={() => navigate("/results")} className="mb-4">
             <ArrowLeft className="h-4 w-4 mr-2" />
@@ -139,7 +139,7 @@ const FacilityMap = () => {
         <div className="max-w-4xl mx-auto space-y-6">
           {/* Map Embed */}
           {userLocation && facilities.length > 0 && (
-            <Card className="p-4 shadow-[var(--shadow-elevated)] overflow-hidden">
+            <Card className="p-3 shadow-[var(--shadow-card)] border border-border overflow-hidden">
               <iframe
                 width="100%"
                 height="400"
@@ -147,7 +147,7 @@ const FacilityMap = () => {
                 style={{ border: 0 }}
                 src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${facilities[0].lat},${facilities[0].lng}&zoom=14`}
                 allowFullScreen
-                className="rounded-lg"
+                className="rounded"
               ></iframe>
             </Card>
           )}
@@ -156,7 +156,7 @@ const FacilityMap = () => {
           {facilities.length > 0 ? (
             <div className="space-y-4">
               {facilities.map((facility, index) => (
-                <Card key={index} className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow">
+                <Card key={index} className="p-6 border border-border hover:shadow-[var(--shadow-card)] transition-shadow">
                   <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
                     <div className="flex-1">
                       <div className="flex items-start gap-3 mb-2">
@@ -196,7 +196,6 @@ const FacilityMap = () => {
                       </Button>
                       <Button
                         size="sm"
-                        className="bg-gradient-to-r from-primary to-primary-glow"
                         onClick={() => window.open(getDirectionsUrl(facility), '_blank')}
                       >
                         <Navigation className="h-4 w-4 mr-2" />
@@ -218,9 +217,9 @@ const FacilityMap = () => {
           )}
 
           {/* Emergency Notice */}
-          <Card className="p-4 bg-destructive/10 border-destructive/20">
-            <p className="text-sm text-center">
-              <strong className="text-destructive">Emergency:</strong> If this is a life-threatening situation, call 911 immediately instead of traveling to a facility.
+          <Card className="p-5 bg-destructive/5 border border-destructive/20">
+            <p className="text-sm text-center leading-relaxed">
+              <strong className="text-destructive font-semibold">Emergency:</strong> If this is a life-threatening situation, call 911 immediately instead of traveling to a facility.
             </p>
           </Card>
         </div>
