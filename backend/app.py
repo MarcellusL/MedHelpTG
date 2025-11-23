@@ -68,9 +68,6 @@ def init_db():
 # Initialize database on startup
 init_db()
 
-# Load model on startup (needed for gunicorn/production)
-load_model()
-
 # Enable CORS with specific configuration for frontend
 # Allow all Railway domains and localhost for development
 CORS(app, resources={
@@ -152,6 +149,10 @@ def load_model():
         model = None
         feature_extractor = None
         return False
+
+# Load model on startup (needed for gunicorn/production)
+# This must be called after the function is defined
+load_model()
 
 def allowed_file(filename):
     """Check if file extension is allowed."""
