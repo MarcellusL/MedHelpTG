@@ -4,6 +4,7 @@ import { Send } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NavLink } from "@/components/NavLink";
+import { motion } from "framer-motion";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -14,15 +15,38 @@ const Header = () => {
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between gap-8">
           {/* Logo/Brand */}
-          <div 
-            className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity flex-shrink-0" 
+          <motion.div 
+            className="flex items-center gap-2 cursor-pointer flex-shrink-0" 
             onClick={() => navigate("/")}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.5 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <Sparkles className="h-8 w-8 text-primary" />
-            <h1 className="text-2xl font-bold text-foreground">
+            <motion.div
+              animate={{ 
+                rotate: [0, 10, -10, 10, 0],
+                scale: [1, 1.1, 1, 1.1, 1]
+              }}
+              transition={{ 
+                duration: 3,
+                repeat: Infinity,
+                repeatDelay: 2,
+                ease: "easeInOut"
+              }}
+            >
+              <Sparkles className="h-8 w-8 text-primary drop-shadow-[0_0_8px_hsl(var(--primary))]" />
+            </motion.div>
+            <motion.h1 
+              className="text-2xl font-bold text-foreground"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
+            >
               NexaHealth
-            </h1>
-          </div>
+            </motion.h1>
+          </motion.div>
 
           {/* Navigation Links - Hidden on mobile */}
           <nav className="hidden md:flex items-center gap-6 flex-1">
