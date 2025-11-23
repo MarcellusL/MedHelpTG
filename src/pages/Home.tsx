@@ -8,27 +8,49 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { CometCard } from "@/components/ui/comet-card";
 import heroBackground from "@/assets/healthcare-hero-bg.jpg";
+
 const Home = () => {
   const navigate = useNavigate();
-  const {
-    toast
-  } = useToast();
+  const { toast } = useToast();
   const [prompt, setPrompt] = useState("");
   const [showImagePrompt, setShowImagePrompt] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
+  
   // Typewriter effect state
   const [placeholderText, setPlaceholderText] = useState("");
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [isDeleting, setIsDeleting] = useState(false);
-  const healthQuestions = ["What does this rash look like?", "How severe is this wound?", "Should I go to the ER or urgent care?", "What kind of burn is this?", "Is this cut infected?", "What are these spots on my skin?"];
-  const medicalKeywords = ["skin irritation", "wounds on skin", "wound", "injury", "cut", "burn", "bruise", "laceration", "abrasion", "rash", "infection", "bleeding"];
+  
+  const healthQuestions = [
+    "What does this rash look like?",
+    "How severe is this wound?",
+    "Should I go to the ER or urgent care?",
+    "What kind of burn is this?",
+    "Is this cut infected?",
+    "What are these spots on my skin?",
+  ];
+
+  const medicalKeywords = [
+    "skin irritation",
+    "wounds on skin",
+    "wound",
+    "injury",
+    "cut",
+    "burn",
+    "bruise",
+    "laceration",
+    "abrasion",
+    "rash",
+    "infection",
+    "bleeding"
+  ];
 
   // Typewriter effect
   useEffect(() => {
     const currentQuestion = healthQuestions[currentQuestionIndex];
     const typingSpeed = isDeleting ? 50 : 100;
     const pauseTime = 2000;
+
     const timeout = setTimeout(() => {
       if (!isDeleting && placeholderText === currentQuestion) {
         // Pause at end before deleting
@@ -36,7 +58,7 @@ const Home = () => {
       } else if (isDeleting && placeholderText === "") {
         // Move to next question
         setIsDeleting(false);
-        setCurrentQuestionIndex(prev => (prev + 1) % healthQuestions.length);
+        setCurrentQuestionIndex((prev) => (prev + 1) % healthQuestions.length);
       } else if (isDeleting) {
         // Delete character
         setPlaceholderText(currentQuestion.substring(0, placeholderText.length - 1));
@@ -45,30 +67,38 @@ const Home = () => {
         setPlaceholderText(currentQuestion.substring(0, placeholderText.length + 1));
       }
     }, typingSpeed);
+
     return () => clearTimeout(timeout);
   }, [placeholderText, isDeleting, currentQuestionIndex, healthQuestions]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
     const lowerPrompt = prompt.toLowerCase();
-    const hasMedicalKeyword = medicalKeywords.some(keyword => lowerPrompt.includes(keyword));
+    const hasMedicalKeyword = medicalKeywords.some(keyword => 
+      lowerPrompt.includes(keyword)
+    );
+
     if (hasMedicalKeyword) {
       setShowImagePrompt(true);
       toast({
         title: "Medical Image Recommended",
-        description: "For wound or skin-related queries, we recommend uploading an image for accurate assessment."
+        description: "For wound or skin-related queries, we recommend uploading an image for accurate assessment.",
       });
     } else {
       toast({
         title: "Language Learning Mode",
-        description: `Processing: "${prompt}"`
+        description: `Processing: "${prompt}"`,
       });
       setPrompt("");
       setShowImagePrompt(false);
     }
   };
+
   const handleScanImage = () => {
     navigate("/upload");
   };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -78,7 +108,7 @@ const Home = () => {
       toast({
         title: "Invalid File",
         description: "Please upload an image file",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
@@ -88,10 +118,11 @@ const Home = () => {
       toast({
         title: "File Too Large",
         description: "Please upload an image smaller than 5MB",
-        variant: "destructive"
+        variant: "destructive",
       });
       return;
     }
+
     const reader = new FileReader();
     reader.onloadend = () => {
       sessionStorage.setItem("woundImage", reader.result as string);
@@ -99,11 +130,14 @@ const Home = () => {
     };
     reader.readAsDataURL(file);
   };
-  return <div className="min-h-screen relative">
+
+  return (
+    <div className="min-h-screen relative">
       {/* Background Image with Overlay */}
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `url(${heroBackground})`
-    }}>
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+        style={{ backgroundImage: `url(${heroBackground})` }}
+      >
         <div className="absolute inset-0 bg-gradient-to-br from-background/60 via-background/50 to-background/40" />
       </div>
       
@@ -128,7 +162,7 @@ const Home = () => {
         <Card className="max-w-3xl mx-auto p-12 md:p-16 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card backdrop-blur-sm mb-16">
           <div className="space-y-8">
             <div className="text-center">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] animate-pulse opacity-100">
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] animate-pulse">
                 <Sparkles className="h-10 w-10 text-primary-foreground drop-shadow-lg" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4">Ask Me Anything</h2>
@@ -139,26 +173,53 @@ const Home = () => {
             
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex gap-3">
-                <Input placeholder={placeholderText} value={prompt} onChange={e => setPrompt(e.target.value)} className="flex-1 bg-background h-12 text-base border-border" />
-                <input ref={fileInputRef} type="file" accept="image/*" onChange={handleImageUpload} className="hidden" />
-                <Button type="button" size="icon" onClick={() => fileInputRef.current?.click()} className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all" title="Upload image for classification">
+                <Input
+                  placeholder={placeholderText}
+                  value={prompt}
+                  onChange={(e) => setPrompt(e.target.value)}
+                  className="flex-1 bg-background h-12 text-base border-border"
+                />
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                <Button 
+                  type="button"
+                  size="icon"
+                  onClick={() => fileInputRef.current?.click()}
+                  className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                  title="Upload image for classification"
+                >
                   <Upload className="h-5 w-5 drop-shadow-md" />
                 </Button>
-                <Button type="submit" size="icon" className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50" disabled={!prompt.trim()}>
+                <Button 
+                  type="submit"
+                  size="icon"
+                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50"
+                  disabled={!prompt.trim()}
+                >
                   <Send className="h-5 w-5 drop-shadow-md" />
                 </Button>
               </div>
             </form>
 
-            {showImagePrompt && <Card className="p-6 bg-primary/10 border-primary/20">
+            {showImagePrompt && (
+              <Card className="p-6 bg-primary/10 border-primary/20">
                 <p className="text-sm text-foreground mb-4 text-center">
                   📸 For accurate medical assessment, please scan an image of the affected area
                 </p>
-                <Button onClick={handleScanImage} className="w-full bg-gradient-to-r from-primary to-primary-glow h-11">
+                <Button
+                  onClick={handleScanImage}
+                  className="w-full bg-gradient-to-r from-primary to-primary-glow h-11"
+                >
                   <Camera className="mr-2 h-5 w-5" />
                   Scan Image Now
                 </Button>
-              </Card>}
+              </Card>
+            )}
           </div>
         </Card>
 
@@ -218,6 +279,8 @@ const Home = () => {
         </div>
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default Home;
