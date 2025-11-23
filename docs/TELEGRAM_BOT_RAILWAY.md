@@ -11,8 +11,10 @@ Your Telegram bot (`backend/script.py`) needs to run as a **separate service** o
 3. Click **"Settings"** → **"Root Directory"**
    - Set to: `backend`
 4. Click **"Settings"** → **"Deploy"** → **"Start Command"**
+   - **Clear any existing command** (like `gunicorn app:app ...`)
    - Set to: `python script.py`
-   - **Important:** This tells Railway to run your Telegram bot
+   - **Important:** This tells Railway to run your Telegram bot, NOT the Flask backend
+   - **Note:** If you see `gunicorn` in the Start Command, that's wrong - it should be `python script.py`
 
 ### Step 2: Add Environment Variables
 
@@ -29,11 +31,14 @@ TELEGRAM_BOT_TOKEN=your_telegram_bot_token
 
 1. Check the **"Deployments"** tab - you should see a successful deployment
 2. Check the **"Logs"** tab - you should see:
-   ```
-   Starting Telegram bot...
-   Bot is running...
-   ```
+   - **✅ CORRECT:** Messages about Telegram bot starting, or no errors
+   - **❌ WRONG:** If you see `Starting gunicorn` or `Loading classifier`, that's the Flask backend, not the bot!
+   
+   The bot logs should look different from your backend logs (no gunicorn, no TensorFlow model loading).
+
 3. Test in Telegram - send `/start` to your bot
+
+**⚠️ Common Mistake:** If your logs show `gunicorn` starting, you're looking at the **backend service**, not the **Telegram bot service**. Make sure you're checking the correct service in Railway!
 
 ## ✅ Verification Checklist
 
