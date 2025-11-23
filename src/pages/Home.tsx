@@ -190,18 +190,18 @@ const Home = () => {
                   type="button"
                   size="icon"
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                  className="bg-gradient-to-r from-accent-foreground to-accent-foreground/90 dark:from-accent-foreground dark:to-accent-foreground/90 h-12 w-12 shadow-[0_0_20px_rgba(var(--accent-foreground-rgb),0.5)] dark:shadow-[0_0_30px_hsl(351_94%_71%/0.6)] hover:shadow-[0_0_30px_rgba(var(--accent-foreground-rgb),0.7)] dark:hover:shadow-[0_0_40px_hsl(351_94%_71%/0.8)] hover:scale-110 transition-all ring-2 ring-accent-foreground/20 dark:ring-accent-foreground/40"
                   title="Upload image for classification"
                 >
-                  <Upload className="h-5 w-5 drop-shadow-md" />
+                  <Upload className="h-5 w-5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                 </Button>
                 <Button 
                   type="submit"
                   size="icon"
-                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50"
+                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-[0_0_20px_hsl(333_71%_50%/0.5)] dark:shadow-[0_0_30px_hsl(328_85%_70%/0.6)] hover:shadow-[0_0_30px_hsl(333_71%_50%/0.7)] dark:hover:shadow-[0_0_40px_hsl(328_85%_70%/0.8)] hover:scale-110 transition-all disabled:opacity-50 ring-2 ring-primary/20 dark:ring-primary/40"
                   disabled={!prompt.trim()}
                 >
-                  <Send className="h-5 w-5 drop-shadow-md" />
+                  <Send className="h-5 w-5 drop-shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
                 </Button>
               </div>
             </form>
