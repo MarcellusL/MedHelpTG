@@ -2,6 +2,7 @@ import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 const Header = () => {
   const navigate = useNavigate();
@@ -21,16 +22,21 @@ const Header = () => {
             </h1>
           </div>
 
-          {/* Telegram Button */}
-          <Button 
-            variant="default"
-            size="default"
-            className="gap-2"
-            onClick={() => window.open('#', '_blank')}
-          >
-            <Send className="h-4 w-4" />
-            Chat on Telegram
-          </Button>
+          {/* Right side buttons */}
+          <div className="flex items-center gap-2">
+            <ThemeToggle />
+            
+            {/* Telegram Button */}
+            <Button 
+              variant="default"
+              size="default"
+              className="gap-2"
+              onClick={() => window.open('#', '_blank')}
+            >
+              <Send className="h-4 w-4" />
+              Chat on Telegram
+            </Button>
+          </div>
         </div>
       </div>
     </header>
