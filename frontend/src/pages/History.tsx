@@ -25,6 +25,7 @@ type Conversation = {
   id: string;
   title: string;
   updated_at: string;
+  source?: 'backend' | 'supabase';
 };
 
 const History = () => {
@@ -37,17 +38,20 @@ const History = () => {
 
   // Reload conversations when component mounts, wallet changes, or location changes
   useEffect(() => {
+    // Force reload when navigating to this page
     loadConversations();
   }, [walletAddress, isConnected, location.pathname]); // Reload when navigating to this page
 
   // Also reload when page gains focus (user switches back to tab)
   useEffect(() => {
     const handleFocus = () => {
-      loadConversations();
+      if (location.pathname === '/history') {
+        loadConversations();
+      }
     };
     window.addEventListener('focus', handleFocus);
     return () => window.removeEventListener('focus', handleFocus);
-  }, [walletAddress, isConnected]);
+  }, [walletAddress, isConnected, location.pathname]);
 
   const loadConversations = async () => {
     try {
@@ -56,19 +60,29 @@ const History = () => {
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/chat/history?wallet_address=${walletAddress}`, {
           headers: {
             'Authorization': `Wallet ${walletAddress}`,
+            'Content-Type': 'application/json',
           },
         });
         
         if (response.ok) {
           const data = await response.json();
-          setConversations(data.conversations || []);
+          const backendConversations = data.conversations || [];
+          // Mark conversations as from backend so we know where to delete them
+          setConversations(backendConversations.map((conv: Conversation) => ({
+            ...conv,
+            source: 'backend' as const
+          })));
           return;
         } else {
-          console.error('Backend returned error:', response.status, response.statusText);
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          console.error('Backend returned error:', response.status, errorData);
+          // Don't fall through to Supabase if wallet is connected - backend should be the source of truth
+          setConversations([]);
+          return;
         }
       }
       
-      // Fallback to Supabase (only if configured)
+      // Fallback to Supabase (only if configured and wallet not connected)
       const { data, error } = await supabase
         .from("conversations")
         .select("*")
@@ -80,7 +94,11 @@ const History = () => {
         return;
       }
 
-      setConversations(data || []);
+      // Mark conversations as from Supabase
+      setConversations((data || []).map((conv: Conversation) => ({
+        ...conv,
+        source: 'supabase' as const
+      })));
     } catch (error) {
       console.error('Failed to load conversations:', error);
       // Don't clear conversations on error - keep existing ones
@@ -89,13 +107,17 @@ const History = () => {
   };
 
   const deleteConversation = async (id: string) => {
-    // Delete from backend if wallet is connected
-    if (isConnected && walletAddress) {
+    // Find the conversation to determine its source
+    const conversation = conversations.find(c => c.id === id);
+    
+    // Delete from backend if wallet is connected OR conversation is from backend
+    if ((isConnected && walletAddress) || conversation?.source === 'backend') {
       try {
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/chat/conversation/${id}?wallet_address=${walletAddress}`, {
           method: 'DELETE',
           headers: {
             'Authorization': `Wallet ${walletAddress}`,
+            'Content-Type': 'application/json',
           },
         });
         
@@ -103,24 +125,40 @@ const History = () => {
           toast({ title: "Conversation deleted" });
           loadConversations();
           return;
+        } else {
+          const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+          console.error('Failed to delete conversation:', response.status, errorData);
+          toast({ 
+            title: "Error deleting conversation", 
+            description: errorData.error || `Server returned ${response.status}`,
+            variant: "destructive" 
+          });
+          return;
         }
       } catch (error) {
         console.error('Failed to delete from backend:', error);
-      }
-    }
-    
-    // Fallback to Supabase
-    try {
-      const { error } = await supabase.from("conversations").delete().eq("id", id);
-
-      if (error) {
         toast({ title: "Error deleting conversation", variant: "destructive" });
         return;
       }
+    }
+    
+    // Fallback to Supabase (only if conversation is from Supabase or wallet not connected)
+    if (conversation?.source === 'supabase' || (!isConnected && !walletAddress)) {
+      try {
+        const { error } = await supabase.from("conversations").delete().eq("id", id);
 
-      toast({ title: "Conversation deleted" });
-      loadConversations();
-    } catch (error) {
+        if (error) {
+          toast({ title: "Error deleting conversation", variant: "destructive" });
+          return;
+        }
+
+        toast({ title: "Conversation deleted" });
+        loadConversations();
+      } catch (error) {
+        toast({ title: "Error deleting conversation", variant: "destructive" });
+      }
+    } else {
+      // If we get here, we tried backend but it failed, and conversation isn't from Supabase
       toast({ title: "Error deleting conversation", variant: "destructive" });
     }
   };
@@ -130,14 +168,22 @@ const History = () => {
     if (isConnected && walletAddress) {
       try {
         // Delete all conversations for this wallet
-        const deletePromises = conversations.map(conv => 
-          fetch(`${API_CONFIG.BACKEND_URL}/chat/conversation/${conv.id}?wallet_address=${walletAddress}`, {
+        const deletePromises = conversations.map(async (conv) => {
+          const response = await fetch(`${API_CONFIG.BACKEND_URL}/chat/conversation/${conv.id}?wallet_address=${walletAddress}`, {
             method: 'DELETE',
             headers: {
               'Authorization': `Wallet ${walletAddress}`,
+              'Content-Type': 'application/json',
             },
-          })
-        );
+          });
+          
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }));
+            console.error(`Failed to delete conversation ${conv.id}:`, response.status, errorData);
+            throw new Error(`Failed to delete ${conv.id}: ${errorData.error || response.status}`);
+          }
+          return response;
+        });
         
         await Promise.all(deletePromises);
         toast({ title: "All conversations cleared" });
@@ -146,7 +192,13 @@ const History = () => {
         return;
       } catch (error) {
         console.error('Failed to clear from backend:', error);
-        toast({ title: "Error clearing history", variant: "destructive" });
+        toast({ 
+          title: "Error clearing history", 
+          description: error instanceof Error ? error.message : 'Some conversations may not have been deleted',
+          variant: "destructive" 
+        });
+        // Still reload to show current state
+        loadConversations();
         return;
       }
     }

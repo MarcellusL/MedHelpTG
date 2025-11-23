@@ -546,15 +546,26 @@ def delete_conversation(conversation_id):
         conn = sqlite3.connect(DB_PATH)
         c = conn.cursor()
         
-        # Verify conversation belongs to wallet
+        # Normalize wallet address for comparison
+        wallet_address_normalized = wallet_address.lower()
+        
+        # Verify conversation exists and belongs to wallet
         c.execute('''
             SELECT wallet_address FROM conversations WHERE id = ?
         ''', (conversation_id,))
         result = c.fetchone()
         
-        if not result or result[0].lower() != wallet_address.lower():
+        if not result:
             conn.close()
+            print(f"DELETE: Conversation {conversation_id} not found in database")
             return jsonify({'error': 'Conversation not found'}), 404
+        
+        # Compare normalized addresses
+        stored_wallet = result[0].lower() if result[0] else None
+        if stored_wallet != wallet_address_normalized:
+            conn.close()
+            print(f"DELETE: Wallet mismatch. Stored: {stored_wallet}, Requested: {wallet_address_normalized}")
+            return jsonify({'error': 'Conversation not found or access denied'}), 404
         
         # Delete messages first (foreign key constraint)
         c.execute('''
