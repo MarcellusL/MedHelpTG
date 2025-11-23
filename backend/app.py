@@ -67,6 +67,10 @@ def init_db():
 
 # Initialize database on startup
 init_db()
+
+# Load model on startup (needed for gunicorn/production)
+load_model()
+
 # Enable CORS with specific configuration for frontend
 # Allow all Railway domains and localhost for development
 CORS(app, resources={
@@ -551,8 +555,7 @@ def link_telegram_wallet():
 
 
 if __name__ == '__main__':
-    # Load model on startup
-    load_model()
+    # Model is already loaded at module level for gunicorn compatibility
     
     # Get port from environment variable (for production hosting like Railway/Render)
     port = int(os.environ.get('PORT', 5001))
