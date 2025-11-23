@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -15,6 +15,20 @@ const Home = () => {
   const [prompt, setPrompt] = useState("");
   const [showImagePrompt, setShowImagePrompt] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // Typewriter effect state
+  const [placeholderText, setPlaceholderText] = useState("");
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const healthQuestions = [
+    "What does this rash look like?",
+    "How severe is this wound?",
+    "Should I go to the ER or urgent care?",
+    "What kind of burn is this?",
+    "Is this cut infected?",
+    "What are these spots on my skin?",
+  ];
 
   const medicalKeywords = [
     "skin irritation",
@@ -30,6 +44,32 @@ const Home = () => {
     "infection",
     "bleeding"
   ];
+
+  // Typewriter effect
+  useEffect(() => {
+    const currentQuestion = healthQuestions[currentQuestionIndex];
+    const typingSpeed = isDeleting ? 50 : 100;
+    const pauseTime = 2000;
+
+    const timeout = setTimeout(() => {
+      if (!isDeleting && placeholderText === currentQuestion) {
+        // Pause at end before deleting
+        setTimeout(() => setIsDeleting(true), pauseTime);
+      } else if (isDeleting && placeholderText === "") {
+        // Move to next question
+        setIsDeleting(false);
+        setCurrentQuestionIndex((prev) => (prev + 1) % healthQuestions.length);
+      } else if (isDeleting) {
+        // Delete character
+        setPlaceholderText(currentQuestion.substring(0, placeholderText.length - 1));
+      } else {
+        // Add character
+        setPlaceholderText(currentQuestion.substring(0, placeholderText.length + 1));
+      }
+    }, typingSpeed);
+
+    return () => clearTimeout(timeout);
+  }, [placeholderText, isDeleting, currentQuestionIndex, healthQuestions]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -134,7 +174,7 @@ const Home = () => {
             <form onSubmit={handleSubmit} className="space-y-6">
               <div className="flex gap-3">
                 <Input
-                  placeholder="Type your question"
+                  placeholder={placeholderText}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
                   className="flex-1 bg-background/50 h-12 text-base"
