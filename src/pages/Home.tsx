@@ -225,7 +225,7 @@ const Home = () => {
 
         {/* Features Grid */}
         <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto items-stretch">
-          <CometCard className="flex overflow-hidden rounded-lg">
+          <CometCard className="flex">
             <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-0 w-full">
               <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
                 <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -239,7 +239,7 @@ const Home = () => {
             </Card>
           </CometCard>
 
-          <CometCard className="flex overflow-hidden rounded-lg">
+          <CometCard className="flex">
             <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-0 w-full">
               <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
                 <div className="w-14 h-14 bg-secondary/10 rounded-full flex items-center justify-center flex-shrink-0">
@@ -253,7 +253,7 @@ const Home = () => {
             </Card>
           </CometCard>
 
-          <CometCard className="flex overflow-hidden rounded-lg">
+          <CometCard className="flex">
             <Card className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow border-0 w-full">
               <div className="flex flex-col items-center text-center space-y-3 min-h-[200px]">
                 <div className="w-14 h-14 bg-primary/10 rounded-full flex items-center justify-center flex-shrink-0">
