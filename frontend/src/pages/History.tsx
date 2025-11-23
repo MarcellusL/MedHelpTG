@@ -36,7 +36,7 @@ const History = () => {
 
   useEffect(() => {
     loadConversations();
-  }, []);
+  }, [walletAddress, isConnected]); // Reload when wallet state changes
 
   const loadConversations = async () => {
     // Load from backend if wallet is connected
@@ -58,43 +58,124 @@ const History = () => {
       }
     }
     
-    // Fallback to Supabase
-    const { data, error } = await supabase
-      .from("conversations")
-      .select("*")
-      .order("updated_at", { ascending: false });
+    // Fallback to Supabase (only if configured)
+    try {
+      const { data, error } = await supabase
+        .from("conversations")
+        .select("*")
+        .order("updated_at", { ascending: false });
 
-    if (error) {
-      toast({ title: "Error loading conversations", variant: "destructive" });
-      return;
+      if (error) {
+        console.debug('Supabase load error:', error);
+        setConversations([]);
+        return;
+      }
+
+      setConversations(data || []);
+    } catch (error) {
+      console.debug('Supabase not configured or failed:', error);
+      setConversations([]);
     }
-
-    setConversations(data || []);
   };
 
   const deleteConversation = async (id: string) => {
-    const { error } = await supabase.from("conversations").delete().eq("id", id);
-
-    if (error) {
-      toast({ title: "Error deleting conversation", variant: "destructive" });
-      return;
+    // Delete from backend if wallet is connected
+    if (isConnected && walletAddress) {
+      try {
+        const response = await fetch(`${API_CONFIG.BACKEND_URL}/chat/conversation/${id}?wallet_address=${walletAddress}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Wallet ${walletAddress}`,
+          },
+        });
+        
+        if (response.ok) {
+          toast({ title: "Conversation deleted" });
+          loadConversations();
+          return;
+        }
+      } catch (error) {
+        console.error('Failed to delete from backend:', error);
+      }
     }
+    
+    // Fallback to Supabase
+    try {
+      const { error } = await supabase.from("conversations").delete().eq("id", id);
 
-    toast({ title: "Conversation deleted" });
-    loadConversations();
+      if (error) {
+        toast({ title: "Error deleting conversation", variant: "destructive" });
+        return;
+      }
+
+      toast({ title: "Conversation deleted" });
+      loadConversations();
+    } catch (error) {
+      toast({ title: "Error deleting conversation", variant: "destructive" });
+    }
   };
 
   const clearAllHistory = async () => {
-    const { error } = await supabase.from("conversations").delete().neq("id", "");
-
-    if (error) {
-      toast({ title: "Error clearing history", variant: "destructive" });
-      return;
+    // Clear from backend if wallet is connected
+    if (isConnected && walletAddress) {
+      try {
+        // Delete all conversations for this wallet
+        const deletePromises = conversations.map(conv => 
+          fetch(`${API_CONFIG.BACKEND_URL}/chat/conversation/${conv.id}?wallet_address=${walletAddress}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Wallet ${walletAddress}`,
+            },
+          })
+        );
+        
+        await Promise.all(deletePromises);
+        toast({ title: "All conversations cleared" });
+        setConversations([]);
+        setShowClearDialog(false);
+        return;
+      } catch (error) {
+        console.error('Failed to clear from backend:', error);
+        toast({ title: "Error clearing history", variant: "destructive" });
+        return;
+      }
     }
+    
+    // Fallback to Supabase (delete all conversations)
+    try {
+      // Get all conversation IDs first, then delete them one by one
+      const { data: allConvs, error: selectError } = await supabase
+        .from("conversations")
+        .select("id");
+      
+      if (selectError) {
+        console.debug('Supabase select error:', selectError);
+        toast({ title: "Error clearing history", variant: "destructive" });
+        return;
+      }
+      
+      if (allConvs && allConvs.length > 0) {
+        // Delete each conversation individually (more reliable than .in())
+        const deletePromises = allConvs.map(conv =>
+          supabase.from("conversations").delete().eq("id", conv.id)
+        );
+        
+        const results = await Promise.all(deletePromises);
+        const hasError = results.some(r => r.error);
+        
+        if (hasError) {
+          toast({ title: "Error clearing some conversations", variant: "destructive" });
+          return;
+        }
+      }
 
-    toast({ title: "All conversations cleared" });
-    setConversations([]);
-    setShowClearDialog(false);
+      toast({ title: "All conversations cleared" });
+      setConversations([]);
+      setShowClearDialog(false);
+    } catch (error) {
+      console.debug('Supabase clear error:', error);
+      toast({ title: "Error clearing history", variant: "destructive" });
+    }
   };
 
   return (

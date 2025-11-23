@@ -88,7 +88,7 @@ CORS(app, resources={
             "http://localhost:8080",
             "http://localhost:5173"
         ],
-        "methods": ["GET", "POST", "OPTIONS"],
+        "methods": ["GET", "POST", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     },
     r"/health": {"origins": "*"},
@@ -99,7 +99,7 @@ CORS(app, resources={
             "http://localhost:8080",
             "http://localhost:5173"
         ],
-        "methods": ["GET", "POST", "OPTIONS"],
+        "methods": ["GET", "POST", "DELETE", "OPTIONS"],
         "allow_headers": ["Content-Type", "Authorization"]
     }
 }, supports_credentials=True)
@@ -508,6 +508,49 @@ def get_conversation(conversation_id):
         
         conn.close()
         return jsonify({'messages': messages})
+    
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/chat/conversation/<conversation_id>', methods=['DELETE'])
+def delete_conversation(conversation_id):
+    """Delete a conversation for a wallet address."""
+    wallet_address = get_wallet_from_request(request) or request.args.get('wallet_address')
+    
+    if not wallet_address or not validate_wallet_address(wallet_address):
+        return jsonify({'error': 'Valid wallet address required'}), 400
+    
+    try:
+        conn = sqlite3.connect(DB_PATH)
+        c = conn.cursor()
+        
+        # Verify conversation belongs to wallet
+        c.execute('''
+            SELECT wallet_address FROM conversations WHERE id = ?
+        ''', (conversation_id,))
+        result = c.fetchone()
+        
+        if not result or result[0].lower() != wallet_address.lower():
+            conn.close()
+            return jsonify({'error': 'Conversation not found'}), 404
+        
+        # Delete messages first (foreign key constraint)
+        c.execute('''
+            DELETE FROM messages 
+            WHERE conversation_id = ? AND wallet_address = ?
+        ''', (conversation_id, wallet_address.lower()))
+        
+        # Delete conversation
+        c.execute('''
+            DELETE FROM conversations 
+            WHERE id = ? AND wallet_address = ?
+        ''', (conversation_id, wallet_address.lower()))
+        
+        conn.commit()
+        conn.close()
+        
+        return jsonify({'success': True, 'message': 'Conversation deleted'})
     
     except Exception as e:
         return jsonify({'error': str(e)}), 500
