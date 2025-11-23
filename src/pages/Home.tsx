@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Camera, MapPin, Sparkles, Shield, Send, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
@@ -172,12 +173,13 @@ const Home = () => {
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="flex gap-3">
-                <Input
+              <div className="flex gap-3 items-end">
+                <Textarea
                   placeholder={placeholderText}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="flex-1 bg-background h-12 text-base border-border"
+                  className="flex-1 bg-background text-base border-border min-h-[80px] max-h-[120px] md:min-h-[48px] md:max-h-[48px] resize-none"
+                  rows={1}
                 />
                 <input
                   ref={fileInputRef}
