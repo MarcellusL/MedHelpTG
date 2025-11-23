@@ -150,7 +150,7 @@ const Home = () => {
           <div className="flex items-center justify-center mb-4">
             <Sparkles className="h-12 w-12 text-primary mr-3" />
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-              NexaLearn
+              NexaHealth
             </h1>
           </div>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -159,7 +159,7 @@ const Home = () => {
         </div>
 
         {/* Main Language Prompt Card */}
-        <Card className="max-w-3xl mx-auto p-12 md:p-16 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card/80 backdrop-blur-sm mb-16">
+        <Card className="max-w-3xl mx-auto p-12 md:p-16 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card backdrop-blur-sm mb-16">
           <div className="space-y-8">
             <div className="text-center">
               <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] animate-pulse">
@@ -177,7 +177,7 @@ const Home = () => {
                   placeholder={placeholderText}
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  className="flex-1 bg-background/50 h-12 text-base"
+                  className="flex-1 bg-background h-12 text-base border-border"
                 />
                 <input
                   ref={fileInputRef}
