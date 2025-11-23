@@ -21,6 +21,9 @@ Deploy both your Flask backend and React frontend to Railway in minutes!
    - Click "Settings" → "Root Directory"
    - Set to: `backend`
    - Railway will auto-detect Python
+   - **IMPORTANT:** Go to "Settings" → "Deploy" → "Start Command"
+   - Set to: `gunicorn app:app --bind 0.0.0.0:$PORT --workers 2 --timeout 120`
+   - (This ensures Railway knows how to start your app)
 
 2. **Configure Environment Variables:**
    - Go to "Variables" tab
@@ -45,6 +48,10 @@ Deploy both your Flask backend and React frontend to Railway in minutes!
    - Click "Settings" → "Root Directory"
    - Set to: `frontend`
    - Railway will auto-detect Node.js/Vite
+   - **IMPORTANT:** Go to "Settings" → "Deploy" → "Start Command"
+   - Set to: `npm run start`
+   - Go to "Settings" → "Build" → "Build Command" (optional, auto-detected)
+   - Should be: `npm install && npm run build`
 
 2. **Configure Environment Variables:**
    - Go to "Variables" tab
