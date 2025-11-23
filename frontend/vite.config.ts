@@ -19,4 +19,14 @@ export default defineConfig(({ mode }) => ({
     outDir: "dist",
     sourcemap: false,
   },
+  preview: {
+    host: "0.0.0.0",
+    port: 8080,
+    allowedHosts: [
+      "medhelptg-frontend.up.railway.app",
+      "nexahealth.work",
+      "nexahealth.railway.app",
+      "localhost",
+    ],
+  },
 }));
