@@ -38,7 +38,8 @@ Deploy both your Flask backend and React frontend to Railway in minutes!
 3. **Deploy:**
    - Railway will automatically start building
    - Wait for deployment to complete
-   - Copy your backend URL (e.g., `https://medstate-backend.railway.app`)
+   - Copy your backend URL (e.g., `https://nexahealth-backend.railway.app`)
+   - **Optional:** Set a custom domain name in Settings → Domains
 
 ### Step 4: Deploy Frontend
 
@@ -57,7 +58,7 @@ Deploy both your Flask backend and React frontend to Railway in minutes!
    - Go to "Variables" tab
    - Add these (use your backend URL from Step 3):
      ```
-     VITE_BACKEND_URL=https://medstate-backend.railway.app
+     VITE_BACKEND_URL=https://nexahealth-backend.railway.app
      VITE_GOOGLE_MAPS_API_KEY=your_google_maps_key
      VITE_SUPABASE_URL=your_supabase_url
      VITE_SUPABASE_PUBLISHABLE_KEY=your_supabase_key
@@ -65,7 +66,8 @@ Deploy both your Flask backend and React frontend to Railway in minutes!
 
 3. **Deploy:**
    - Railway will automatically build and deploy
-   - Copy your frontend URL (e.g., `https://medstate-frontend.railway.app`)
+   - Copy your frontend URL (should be `https://nexahealth.railway.app` if you set custom domain)
+   - **Optional:** Set a custom domain name in Settings → Domains (e.g., `nexahealth.railway.app`)
 
 ### Step 5: Update Backend CORS
 
@@ -75,12 +77,14 @@ Update `backend/app.py` to allow your Railway frontend domain:
 CORS(app, resources={
     r"/*": {
         "origins": [
-            "https://medstate-frontend.railway.app",  # Your Railway frontend URL
+            "https://nexahealth.railway.app",  # Your custom Railway domain (or default Railway URL)
             "http://localhost:8080",  # For local development
         ]
     }
 }, supports_credentials=True)
 ```
+
+**Note:** Replace with your actual Railway domain. You can set a custom domain in Railway (see "Custom Domains" section below).
 
 Then commit and push - Railway will auto-redeploy!
 
@@ -101,8 +105,8 @@ Then commit and push - Railway will auto-redeploy!
 ## ✅ That's It!
 
 Your full stack is now live:
-- **Frontend**: `https://medstate-frontend.railway.app`
-- **Backend**: `https://medstate-backend.railway.app`
+- **Frontend**: `https://nexahealth.railway.app`
+- **Backend**: `https://nexahealth-backend.railway.app` (or your backend domain)
 - **Telegram Bot**: Running in background
 
 ## 🔄 Automatic Deployments
@@ -146,10 +150,27 @@ Railway automatically deploys when you push to your connected branch!
 
 ## 🎯 Custom Domains
 
+Railway allows you to set custom domain names for your services!
+
+### Option 1: Railway Subdomain (Free)
 1. Go to your service → "Settings" → "Domains"
-2. Add your custom domain
-3. Railway will provide DNS instructions
-4. SSL is automatic!
+2. Click "Generate Domain" or "Custom Domain"
+3. Enter your desired name (e.g., `nexahealth`)
+4. Railway will provide: `https://nexahealth.railway.app`
+5. SSL is automatic!
+
+### Option 2: Custom Domain (Your Own Domain)
+1. Go to your service → "Settings" → "Domains"
+2. Click "Custom Domain"
+3. Enter your domain (e.g., `nexahealth.com` or `app.nexahealth.com`)
+4. Railway will provide DNS instructions (CNAME record)
+5. Update your DNS settings with your domain provider
+6. SSL is automatic once DNS propagates (usually 5-15 minutes)
+
+**Example:** You could use:
+- `nexahealth.railway.app` (Railway subdomain - free)
+- `app.nexahealth.com` (Custom subdomain)
+- `nexahealth.com` (Root domain)
 
 ## 📚 More Info
 
