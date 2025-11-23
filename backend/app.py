@@ -68,11 +68,39 @@ def init_db():
 # Initialize database on startup
 init_db()
 # Enable CORS with specific configuration for frontend
+# Allow all Railway domains and localhost for development
 CORS(app, resources={
-    r"/predict": {"origins": ["https://medhelptg-frontend.up.railway.app", "https://nexahealth.work", "http://localhost:8080"]},
-    r"/chat": {"origins": ["https://medhelptg-frontend.up.railway.app", "https://nexahealth.work", "http://localhost:8080"]},
+    r"/predict": {
+        "origins": [
+            "https://medhelptg-frontend.up.railway.app",
+            "https://nexahealth.work",
+            "http://localhost:8080",
+            "http://localhost:5173"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    },
+    r"/chat": {
+        "origins": [
+            "https://medhelptg-frontend.up.railway.app",
+            "https://nexahealth.work",
+            "http://localhost:8080",
+            "http://localhost:5173"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    },
     r"/health": {"origins": "*"},
-    r"/*": {"origins": ["https://medhelptg-frontend.up.railway.app", "https://nexahealth.work", "http://localhost:8080"]}
+    r"/*": {
+        "origins": [
+            "https://medhelptg-frontend.up.railway.app",
+            "https://nexahealth.work",
+            "http://localhost:8080",
+            "http://localhost:5173"
+        ],
+        "methods": ["GET", "POST", "OPTIONS"],
+        "allow_headers": ["Content-Type", "Authorization"]
+    }
 }, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
@@ -201,6 +229,26 @@ def index():
     """Render the main page."""
     return render_template('index.html')
 
+@app.after_request
+def after_request(response):
+    """Add CORS headers to all responses."""
+    # Ensure CORS headers are set correctly
+    origin = request.headers.get('Origin')
+    allowed_origins = [
+        "https://medhelptg-frontend.up.railway.app",
+        "https://nexahealth.work",
+        "http://localhost:8080",
+        "http://localhost:5173"
+    ]
+    
+    if origin in allowed_origins:
+        response.headers['Access-Control-Allow-Origin'] = origin
+        response.headers['Access-Control-Allow-Credentials'] = 'true'
+        response.headers['Access-Control-Allow-Methods'] = 'GET, POST, OPTIONS'
+        response.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization'
+    
+    return response
+
 @app.route('/predict', methods=['POST'])
 def predict():
     """Handle image upload and prediction.
@@ -282,6 +330,7 @@ def health():
 def chat():
     """Handle chat messages from frontend using Gemini AI.
     Stores messages by wallet address for cross-platform access.
+    Has a 15-second timeout for Gemini API calls.
     """
     try:
         data = request.get_json()
@@ -292,8 +341,39 @@ def chat():
         if not messages:
             return jsonify({'error': 'No messages provided'}), 400
         
-        # Get response from chat handler
-        response_text = chat_with_context(messages)
+        # Get response from chat handler with 15-second timeout
+        import threading
+        import queue
+        
+        result_queue = queue.Queue()
+        exception_queue = queue.Queue()
+        
+        def call_chat():
+            try:
+                response = chat_with_context(messages)
+                result_queue.put(response)
+            except Exception as e:
+                exception_queue.put(e)
+        
+        # Start chat call in a thread
+        thread = threading.Thread(target=call_chat)
+        thread.daemon = True
+        thread.start()
+        thread.join(timeout=15)  # Wait up to 15 seconds
+        
+        if thread.is_alive():
+            # Thread is still running - timeout occurred
+            return jsonify({'error': 'Request timed out after 15 seconds. Please try again.'}), 504
+        
+        # Check for exceptions
+        if not exception_queue.empty():
+            raise exception_queue.get()
+        
+        # Get result
+        if result_queue.empty():
+            return jsonify({'error': 'No response received from chat service.'}), 500
+        
+        response_text = result_queue.get()
         
         # Store messages if wallet address is provided
         if wallet_address and validate_wallet_address(wallet_address):
