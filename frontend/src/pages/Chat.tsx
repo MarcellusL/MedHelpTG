@@ -38,12 +38,13 @@ const Chat = () => {
   }, [messages]);
 
   const loadConversation = async (id: string) => {
-    // Try loading from backend if wallet is connected
+    // If wallet is connected, ONLY load from backend (not Supabase)
     if (isConnected && walletAddress) {
       try {
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/chat/conversation/${id}?wallet_address=${walletAddress}`, {
           headers: {
             'Authorization': `Wallet ${walletAddress}`,
+            'Content-Type': 'application/json',
           },
         });
         
@@ -69,14 +70,20 @@ const Chat = () => {
             });
             return merged;
           });
+          return; // Don't try Supabase when wallet is connected
+        } else {
+          console.error('Backend returned error:', response.status);
+          // Don't fall back to Supabase if wallet is connected
           return;
         }
       } catch (error) {
         console.error('Failed to load from backend:', error);
+        // Don't fall back to Supabase if wallet is connected
+        return;
       }
     }
     
-    // Fallback to Supabase (the client now handles missing config gracefully)
+    // Only use Supabase if wallet is NOT connected
     try {
       const { data, error } = await supabase
         .from("messages")
@@ -108,31 +115,13 @@ const Chat = () => {
         return;
       }
     } catch (error) {
-      // Supabase not configured or failed - messages will be loaded from backend only
+      // Supabase not configured or failed
       console.debug('Supabase load skipped:', error);
     }
   };
 
   const saveMessage = async (convId: string, role: string, content: string) => {
-    // Save to Supabase for backward compatibility (only if Supabase is configured)
-    // The supabase client now handles missing config gracefully
-    try {
-      const result = supabase.from("messages").insert({
-        conversation_id: convId,
-        role,
-        content,
-      });
-      if (result && typeof result.then === 'function') {
-        await result.catch(() => {
-          // Ignore Supabase errors if using wallet-based storage
-        });
-      }
-    } catch (error) {
-      // Ignore Supabase errors if using wallet-based storage
-      console.debug('Supabase save skipped:', error);
-    }
-    
-    // Also save to backend if wallet is connected
+    // If wallet is connected, ONLY save to backend (not Supabase)
     if (isConnected && walletAddress) {
       try {
         await fetch(`${API_CONFIG.BACKEND_URL}/chat`, {
@@ -147,9 +136,27 @@ const Chat = () => {
             wallet_address: walletAddress,
           }),
         });
+        return; // Don't save to Supabase when wallet is connected
       } catch (error) {
         console.error('Failed to save to backend:', error);
+        return; // Don't fall back to Supabase if backend fails
       }
+    }
+    
+    // Only save to Supabase if wallet is NOT connected
+    try {
+      const result = supabase.from("messages").insert({
+        conversation_id: convId,
+        role,
+        content,
+      });
+      if (result && typeof result.then === 'function') {
+        await result.catch(() => {
+          // Ignore Supabase errors
+        });
+      }
+    } catch (error) {
+      console.debug('Supabase save skipped:', error);
     }
   };
 
@@ -169,24 +176,26 @@ const Chat = () => {
 
     // Create new conversation if needed
     if (!currentConvId) {
-      // Try Supabase first (the client now handles missing config gracefully)
-      try {
-        const { data, error } = await supabase
-          .from("conversations")
-          .insert({ title: messageText.slice(0, 50) })
-          .select()
-          .single();
-
-        if (!error && data) {
-          currentConvId = data.id;
-        }
-      } catch (error) {
-        console.debug('Supabase conversation creation skipped:', error);
-      }
+      // Generate UUID for conversation (backend will create it when we send the message)
+      currentConvId = crypto.randomUUID();
       
-      // If Supabase not configured or failed, generate UUID for conversation
-      if (!currentConvId) {
-        currentConvId = crypto.randomUUID();
+      // If wallet is connected, conversation will be created in backend
+      // If wallet is NOT connected, we can optionally create in Supabase
+      if (!isConnected || !walletAddress) {
+        // Only try Supabase if wallet is NOT connected
+        try {
+          const { data, error } = await supabase
+            .from("conversations")
+            .insert({ title: messageText.slice(0, 50) })
+            .select()
+            .single();
+
+          if (!error && data) {
+            currentConvId = data.id;
+          }
+        } catch (error) {
+          console.debug('Supabase conversation creation skipped:', error);
+        }
       }
       
       // Save message before navigating to ensure it's persisted
