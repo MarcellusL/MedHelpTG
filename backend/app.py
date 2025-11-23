@@ -401,13 +401,19 @@ def chat():
                     VALUES (?, ?, ?, ?)
                 ''', (conversation_id, wallet_address.lower(), title, datetime.now()))
             
-            # Save user message
+            # Save user message (only the last one to avoid duplicates)
             last_user_msg = next((m for m in reversed(messages) if m.get('role') == 'user'), None)
             if last_user_msg:
+                # Check if message already exists to avoid duplicates
                 c.execute('''
-                    INSERT INTO messages (conversation_id, wallet_address, role, content)
-                    VALUES (?, ?, ?, ?)
+                    SELECT id FROM messages 
+                    WHERE conversation_id = ? AND wallet_address = ? AND role = ? AND content = ?
                 ''', (conversation_id, wallet_address.lower(), 'user', last_user_msg.get('content', '')))
+                if not c.fetchone():
+                    c.execute('''
+                        INSERT INTO messages (conversation_id, wallet_address, role, content)
+                        VALUES (?, ?, ?, ?)
+                    ''', (conversation_id, wallet_address.lower(), 'user', last_user_msg.get('content', '')))
             
             # Save assistant response
             c.execute('''
@@ -423,13 +429,14 @@ def chat():
             conn.commit()
             conn.close()
         
+        # Always return conversation_id (created or existing)
         return jsonify({
             'choices': [{
                 'delta': {
                     'content': response_text
                 }
             }],
-            'conversation_id': conversation_id
+            'conversation_id': conversation_id or None
         })
     
     except Exception as e:

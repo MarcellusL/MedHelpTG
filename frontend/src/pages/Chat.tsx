@@ -174,58 +174,48 @@ const Chat = () => {
 
     let currentConvId = conversationId;
 
-    // Create new conversation if needed
-    if (!currentConvId) {
-      // Generate UUID for conversation (backend will create it when we send the message)
-      currentConvId = crypto.randomUUID();
-      
-      // If wallet is connected, conversation will be created in backend
-      // If wallet is NOT connected, we can optionally create in Supabase
-      if (!isConnected || !walletAddress) {
-        // Only try Supabase if wallet is NOT connected
-        try {
-          const { data, error } = await supabase
-            .from("conversations")
-            .insert({ title: messageText.slice(0, 50) })
-            .select()
-            .single();
+    // If no conversation ID and wallet NOT connected, create in Supabase first
+    if (!currentConvId && (!isConnected || !walletAddress)) {
+      try {
+        const { data, error } = await supabase
+          .from("conversations")
+          .insert({ title: messageText.slice(0, 50) })
+          .select()
+          .single();
 
-          if (!error && data) {
-            currentConvId = data.id;
-          }
-        } catch (error) {
-          console.debug('Supabase conversation creation skipped:', error);
+        if (!error && data) {
+          currentConvId = data.id;
+          navigate(`/chat?id=${currentConvId}`, { replace: true });
         }
+      } catch (error) {
+        console.debug('Supabase conversation creation skipped:', error);
       }
-      
-      // Save message before navigating to ensure it's persisted
-      await saveMessage(currentConvId, "user", messageText);
-      // Update conversationId state and navigate
-      navigate(`/chat?id=${currentConvId}`, { replace: true });
-    } else {
-      // Save message if conversation already exists
-      await saveMessage(currentConvId, "user", messageText);
     }
 
     try {
-      // Call backend chat endpoint
+      // Call backend chat endpoint - backend will create conversation if needed when wallet is connected
       const headers: Record<string, string> = {
         "Content-Type": "application/json",
       };
       
-      // Add wallet address if connected
+      // Always pass wallet_address if connected (backend needs it to save messages)
+      const requestBody: any = { 
+        messages: [...messages, userMessage],
+      };
+      
+      if (currentConvId) {
+        requestBody.conversation_id = currentConvId;
+      }
+      
       if (isConnected && walletAddress) {
         headers['Authorization'] = `Wallet ${walletAddress}`;
+        requestBody.wallet_address = walletAddress;
       }
       
       const response = await fetch(`${API_CONFIG.BACKEND_URL}/chat`, {
         method: "POST",
         headers,
-        body: JSON.stringify({ 
-          messages: [...messages, userMessage],
-          conversation_id: currentConvId,
-          wallet_address: walletAddress,
-        }),
+        body: JSON.stringify(requestBody),
       });
 
       if (!response.ok) {
@@ -238,17 +228,23 @@ const Chat = () => {
       const data = await response.json();
       const assistantContent = data.choices?.[0]?.delta?.content || "I could not respond.";
       
-      // Update conversation ID if returned from backend
-      if (data.conversation_id && !currentConvId) {
+      // Use conversation ID from backend (it creates one if wallet is connected)
+      if (data.conversation_id) {
         currentConvId = data.conversation_id;
-        navigate(`/chat?id=${currentConvId}`, { replace: true });
+        // Update URL if conversation ID changed
+        if (currentConvId !== conversationId) {
+          navigate(`/chat?id=${currentConvId}`, { replace: true });
+        }
       }
 
       // Add assistant response to messages
       setMessages((prev) => [...prev, { role: "assistant", content: assistantContent }]);
 
-      if (assistantContent && currentConvId) {
-        await saveMessage(currentConvId, "assistant", assistantContent);
+      // Save to Supabase only if wallet is NOT connected (backend already saved if wallet connected)
+      if (!isConnected || !walletAddress) {
+        if (currentConvId && assistantContent) {
+          await saveMessage(currentConvId, "assistant", assistantContent);
+        }
       }
     } catch (error) {
       console.error("Chat error:", error);
