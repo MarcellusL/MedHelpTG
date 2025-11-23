@@ -4,6 +4,16 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { MessageSquare, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -17,6 +27,7 @@ type Conversation = {
 
 const History = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [showClearDialog, setShowClearDialog] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -50,13 +61,34 @@ const History = () => {
     loadConversations();
   };
 
+  const clearAllHistory = async () => {
+    const { error } = await supabase.from("conversations").delete().neq("id", "");
+
+    if (error) {
+      toast({ title: "Error clearing history", variant: "destructive" });
+      return;
+    }
+
+    toast({ title: "All conversations cleared" });
+    setConversations([]);
+    setShowClearDialog(false);
+  };
+
   return (
     <div className="min-h-screen bg-background flex flex-col">
       <Header />
       
       <div className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="mb-6">
+        <div className="flex items-center justify-between mb-6">
           <h1 className="text-3xl font-bold text-foreground">Chat History</h1>
+          <Button 
+            variant="destructive" 
+            onClick={() => setShowClearDialog(true)}
+            disabled={conversations.length === 0}
+          >
+            <Trash2 className="h-4 w-4 mr-2" />
+            Clear History
+          </Button>
         </div>
 
         <ScrollArea className="h-[calc(100vh-200px)]">
@@ -101,6 +133,23 @@ const History = () => {
             </div>
           )}
         </ScrollArea>
+
+        <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Clear all chat history?</AlertDialogTitle>
+              <AlertDialogDescription>
+                This will permanently delete all your conversations. This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={clearAllHistory} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Clear All
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </div>
   );
