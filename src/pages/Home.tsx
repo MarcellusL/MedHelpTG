@@ -162,8 +162,8 @@ const Home = () => {
         <Card className="max-w-3xl mx-auto p-12 md:p-16 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card/80 backdrop-blur-sm mb-16">
           <div className="space-y-8">
             <div className="text-center">
-              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-6">
-                <Sparkles className="h-10 w-10 text-primary-foreground" />
+              <div className="mx-auto w-20 h-20 bg-gradient-to-br from-primary to-primary-glow rounded-full flex items-center justify-center mb-6 shadow-[0_0_30px_rgba(var(--primary-rgb),0.5)] animate-pulse">
+                <Sparkles className="h-10 w-10 text-primary-foreground drop-shadow-lg" />
               </div>
               <h2 className="text-2xl md:text-3xl font-bold mb-4">Ask Me Anything</h2>
               <p className="text-muted-foreground text-base md:text-lg">
@@ -190,18 +190,18 @@ const Home = () => {
                   type="button"
                   size="icon"
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12"
+                  className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                   title="Upload image for classification"
                 >
-                  <Upload className="h-5 w-5" />
+                  <Upload className="h-5 w-5 drop-shadow-md" />
                 </Button>
                 <Button 
                   type="submit"
                   size="icon"
-                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12"
+                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50"
                   disabled={!prompt.trim()}
                 >
-                  <Send className="h-5 w-5" />
+                  <Send className="h-5 w-5 drop-shadow-md" />
                 </Button>
               </div>
             </form>
