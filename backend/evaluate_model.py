@@ -24,8 +24,10 @@ from train_model import (
     CM_SAVE_PATH
 )
 
-MODEL_PATH = "wound_classifier.joblib"
-CLASS_NAMES_PATH = "class_names.pkl"
+# Use absolute paths based on script location
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODEL_PATH = os.path.join(BASE_DIR, "wound_classifier.joblib")
+CLASS_NAMES_PATH = os.path.join(BASE_DIR, "class_names.pkl")
 
 
 def evaluate():

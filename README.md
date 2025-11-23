@@ -1,77 +1,96 @@
-<<<<<<< HEAD
-# MedHelpTG
-=======
-# Welcome to your Lovable project
+# MedState - Wound Classification System
 
-## Project info
+A full-stack application for classifying wound images using machine learning.
 
-**URL**: https://lovable.dev/projects/371920a2-5b66-4bf7-b78d-7122ac7e6970
+## Project Structure
 
-## How can I edit this code?
+```
+MedState/
+├── backend/          # Flask API & ML Model
+│   ├── app.py       # Flask web server
+│   ├── train_model.py      # Model training script
+│   ├── evaluate_model.py   # Model evaluation script
+│   ├── requirements.txt   # Python dependencies
+│   ├── templates/   # Flask HTML templates (demo)
+│   └── uploads/     # Temporary image uploads
+│
+├── frontend/        # React frontend (from lovable/woundcare-ai)
+│   ├── src/        # React source code
+│   ├── public/     # Static assets
+│   └── package.json
+│
+└── Wound_dataset/   # Training dataset (not tracked in git)
+```
 
-There are several ways of editing your application.
+## Quick Start
 
-**Use Lovable**
+### Backend (ML API)
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/371920a2-5b66-4bf7-b78d-7122ac7e6970) and start prompting.
+**Option 1: Using helper scripts (Recommended)**
+```bash
+cd backend
+./train_model.sh    # Train the model (first time only)
+./run_backend.sh    # Start the Flask server
+```
 
-Changes made via Lovable will be committed automatically to this repo.
+**Option 2: Manual setup**
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+python3 train_model.py    # Train the model (first time only)
+python3 app.py            # Run the server
+```
 
-**Use your preferred IDE**
+Server runs on `http://localhost:5001`
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Frontend (React App)
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+**Option 1: Using helper script (Recommended)**
+```bash
+cd frontend
+./run_frontend.sh
+```
 
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+**Option 2: Manual setup**
+```bash
+cd frontend
+npm install
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Frontend will be available at `http://localhost:5173` (or next available port)
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+## Updating Frontend from Lovable
 
-**Use GitHub Codespaces**
+To pull the latest frontend code from the `lovable` remote:
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```bash
+./update_frontend.sh
+```
 
-## What technologies are used for this project?
+Or manually:
+```bash
+cd frontend
+git fetch lovable
+git checkout lovable/main -- .
+```
 
-This project is built with:
+## Backend API Endpoints
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+- `GET /` - Demo page
+- `POST /predict` - Upload image and get classification
+- `GET /health` - Health check and model status
 
-## How can I deploy this project?
+## Development Workflow
 
-Simply open [Lovable](https://lovable.dev/projects/371920a2-5b66-4bf7-b78d-7122ac7e6970) and click on Share -> Publish.
+1. **Modify backend:** Edit files in `backend/`
+2. **Update frontend:** Pull from `lovable` remote when needed
+3. **Connect them:** Frontend should call backend API at `http://localhost:5001`
 
-## Can I connect a custom domain to my Lovable project?
+## Notes
 
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
->>>>>>> lovable/main
+- Model files (`.joblib`, `.pkl`) are gitignored - train locally
+- Dataset (`Wound_dataset/`) is gitignored due to size
+- Frontend is maintained separately in the `lovable` remote

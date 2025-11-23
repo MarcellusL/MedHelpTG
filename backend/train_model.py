@@ -36,7 +36,7 @@ tf.random.set_seed(42)
 # -------------------------------------------------------------
 # Configuration - extensible dataset loading + classical model
 # -------------------------------------------------------------
-PRIMARY_DATA_DIR = "Wound_dataset"
+PRIMARY_DATA_DIR = "../Wound_dataset"
 EXTRA_DATA_DIRS = [
     # "/absolute/path/to/another/wound_dataset",
 ]
