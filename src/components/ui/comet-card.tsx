@@ -24,6 +24,7 @@ export const CometCard = ({
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
+  const isHovered = useMotionValue(0);
 
   const mouseXSpring = useSpring(x);
   const mouseYSpring = useSpring(y);
@@ -71,11 +72,13 @@ export const CometCard = ({
 
     x.set(xPct);
     y.set(yPct);
+    isHovered.set(1);
   };
 
   const handleMouseLeave = () => {
     x.set(0);
     y.set(0);
+    isHovered.set(0);
   };
 
   return (
@@ -105,7 +108,7 @@ export const CometCard = ({
           className="pointer-events-none absolute inset-0 z-50 h-full w-full rounded-[16px] mix-blend-overlay"
           style={{
             background: glareBackground,
-            opacity: 0.6,
+            opacity: useTransform(isHovered, [0, 1], [0, 0.6]),
           }}
           transition={{ duration: 0.2 }}
         />
