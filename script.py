@@ -5,14 +5,17 @@ import google.generativeai as genai
 import json
 import os
 
-GENAI_KEY = "Gemini_API"
-model = genai.GenerativeModel("Gemeni_Ver")
-bot = telebot.TeleBot('TELEGRAMBOT_TOKEN')
+GENAI_KEY = "API"
+model = genai.GenerativeModel("model")
+bot = telebot.TeleBot('TOKEN')
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 SYMPTOM_CONFIG_PATH = os.path.join(BASE_DIR, "symptoms_config.json")
 FACILITY_PATH = os.path.join(BASE_DIR, "facilities.json")
+KEYWORD_PATH = os.path.join(BASE_DIR, "health_keywords.json")
 
+with open(KEYWORD_PATH, "r", encoding="utf-8") as f:
+    HEALTH_KEYWORDS = json.load(f)["keywords"]
 with open(SYMPTOM_CONFIG_PATH, "r", encoding="utf-8") as f:
     RAW_SYMPTOM_CONFIG = json.load(f)
 
@@ -35,9 +38,6 @@ user_symptoms: dict[int, Counter] = defaultdict(Counter)
 user_state: dict[int, dict] = {}
 
 last_bot_msg: dict[int, int] = {}
-
-
-# ------------- STATE AND MESSAGE HELPERS -------------
 
 def get_state(chat_id: int) -> dict:
     if chat_id not in user_state:
@@ -102,6 +102,26 @@ Provide a concise, safe triage summary:
     except Exception:
         return "I could not create a summary."
 
+def is_relevant_text(text: str, counts: Counter) -> bool:
+    """
+    Decides if a free text message should be answered by the AI.
+    """
+
+    # user already selected symptoms → always relevant
+    if sum(counts.values()) > 0:
+        return True
+
+    t = text.lower()
+
+    # check JSON-loaded keywords
+    if any(word in t for word in HEALTH_KEYWORDS):
+        return True
+
+    # check if the text mentions any known symptom
+    if any(sym.lower() in t for sym in SYMPTOMS.keys()):
+        return True
+
+    return False
 
 def gemini_chat_reply(user_text, counts=None, details=None):
     counts = counts or Counter()
@@ -407,8 +427,13 @@ def handle_message(message):
         return
 
     # free text -> Gemini
+    # free text -> Gemini (with guardrails)
     counts = user_symptoms[chat_id]
     details = user_state.get(chat_id, {}).get("details", {})
+
+    # if message is not health-related and no symptoms selected, ignore it
+    if not is_relevant_text(text, counts):
+        return
 
     thinking = bot.send_message(chat_id, "Thinking...")
     try:
