@@ -84,7 +84,7 @@ uploads/
 .env.*.local
 
 # Dataset (uncomment if dataset is large and shouldn't be tracked)
-# Wound_dataset/
+Wound_dataset/
 
 # Temporary files
 *.tmp
