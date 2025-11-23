@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card } from "@/components/ui/card";
-import { MessageSquare, Trash2, Plus } from "lucide-react";
+import { MessageSquare, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { format } from "date-fns";
@@ -55,12 +55,8 @@ const History = () => {
       <Header />
       
       <div className="flex-1 container mx-auto px-4 py-8 max-w-4xl">
-        <div className="flex items-center justify-between mb-6">
+        <div className="mb-6">
           <h1 className="text-3xl font-bold text-foreground">Chat History</h1>
-          <Button onClick={() => navigate("/chat")}>
-            <Plus className="h-4 w-4 mr-2" />
-            New Chat
-          </Button>
         </div>
 
         <ScrollArea className="h-[calc(100vh-200px)]">
