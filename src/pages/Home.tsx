@@ -150,7 +150,7 @@ const Home = () => {
           <div className="flex items-center justify-center mb-4">
             <Sparkles className="h-12 w-12 text-primary mr-3" />
             <h1 className="text-4xl md:text-5xl font-bold text-foreground">
-              NexaHealth
+              NexaLearn
             </h1>
           </div>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
@@ -190,7 +190,7 @@ const Home = () => {
                   type="button"
                   size="icon"
                   onClick={() => fileInputRef.current?.click()}
-                  className="bg-gradient-to-r from-secondary via-secondary to-secondary/90 h-12 w-12 shadow-[0_4px_20px_rgba(var(--secondary-rgb),0.6)] dark:shadow-[0_4px_30px_rgba(var(--secondary-rgb),0.8)] hover:shadow-[0_6px_30px_rgba(var(--secondary-rgb),0.8)] dark:hover:shadow-[0_6px_40px_rgba(var(--secondary-rgb),1)] hover:scale-110 transition-all border border-secondary/20 dark:border-secondary/40"
+                  className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
                   title="Upload image for classification"
                 >
                   <Upload className="h-5 w-5 drop-shadow-md" />
@@ -198,7 +198,7 @@ const Home = () => {
                 <Button 
                   type="submit"
                   size="icon"
-                  className="bg-gradient-to-r from-primary via-primary to-primary-glow h-12 w-12 shadow-[0_4px_20px_rgba(var(--primary-rgb),0.6)] dark:shadow-[0_4px_30px_rgba(var(--primary-rgb),0.8)] hover:shadow-[0_6px_30px_rgba(var(--primary-rgb),0.8)] dark:hover:shadow-[0_6px_40px_rgba(var(--primary-rgb),1)] hover:scale-110 transition-all disabled:opacity-50 border border-primary/20 dark:border-primary/40"
+                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50"
                   disabled={!prompt.trim()}
                 >
                   <Send className="h-5 w-5 drop-shadow-md" />
