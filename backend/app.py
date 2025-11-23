@@ -474,6 +474,10 @@ if __name__ == '__main__':
     # Load model on startup
     load_model()
     
+    # Get port from environment variable (for production hosting like Railway/Render)
+    port = int(os.environ.get('PORT', 5001))
+    # Debug should be False in production
+    debug = os.environ.get('FLASK_DEBUG', 'False').lower() == 'true'
     # Run the app
-    app.run(debug=True, host='0.0.0.0', port=5001)
+    app.run(debug=debug, host='0.0.0.0', port=port)
 

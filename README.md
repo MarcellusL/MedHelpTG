@@ -89,6 +89,17 @@ git checkout lovable/main -- .
 2. **Update frontend:** Pull from `lovable` remote when needed
 3. **Connect them:** Frontend should call backend API at `http://localhost:5001`
 
+## Deployment
+
+### Railway (Recommended - Full Stack)
+Deploy both backend and frontend together on Railway:
+- See `docs/RAILWAY_DEPLOY.md` for step-by-step instructions
+- Free $5 credit/month, then pay-as-you-go
+- Automatic deployments from GitHub
+
+### Other Options
+See `docs/FULL_STACK_HOSTING.md` for alternative platforms (Render, Fly.io, etc.)
+
 ## Notes
 
 - Model files (`.joblib`, `.pkl`) are gitignored - train locally

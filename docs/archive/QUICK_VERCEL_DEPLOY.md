@@ -48,3 +48,14 @@ Your frontend will be live at `your-project.vercel.app`
 
 For detailed instructions, see `docs/VERCEL_DEPLOYMENT.md`
 
+---
+
+## 💡 Want to Host Both Backend + Frontend Together?
+
+**Check out `docs/FULL_STACK_HOSTING.md`** for platforms like:
+- **Railway** (Recommended - easiest, $5 free credit/month)
+- **Render** (Free tier available)
+- **Fly.io** (Fast global deployment)
+
+These platforms let you deploy both your Flask backend and React frontend from the same repo!
+
