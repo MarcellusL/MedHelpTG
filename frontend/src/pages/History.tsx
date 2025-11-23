@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -31,17 +31,28 @@ const History = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { walletAddress, isConnected } = useWallet();
 
+  // Reload conversations when component mounts, wallet changes, or location changes
   useEffect(() => {
     loadConversations();
-  }, [walletAddress, isConnected]); // Reload when wallet state changes
+  }, [walletAddress, isConnected, location.pathname]); // Reload when navigating to this page
+
+  // Also reload when page gains focus (user switches back to tab)
+  useEffect(() => {
+    const handleFocus = () => {
+      loadConversations();
+    };
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
+  }, [walletAddress, isConnected]);
 
   const loadConversations = async () => {
-    // Load from backend if wallet is connected
-    if (isConnected && walletAddress) {
-      try {
+    try {
+      // Load from backend if wallet is connected
+      if (isConnected && walletAddress) {
         const response = await fetch(`${API_CONFIG.BACKEND_URL}/chat/history?wallet_address=${walletAddress}`, {
           headers: {
             'Authorization': `Wallet ${walletAddress}`,
@@ -52,14 +63,12 @@ const History = () => {
           const data = await response.json();
           setConversations(data.conversations || []);
           return;
+        } else {
+          console.error('Backend returned error:', response.status, response.statusText);
         }
-      } catch (error) {
-        console.error('Failed to load from backend:', error);
       }
-    }
-    
-    // Fallback to Supabase (only if configured)
-    try {
+      
+      // Fallback to Supabase (only if configured)
       const { data, error } = await supabase
         .from("conversations")
         .select("*")
@@ -73,8 +82,9 @@ const History = () => {
 
       setConversations(data || []);
     } catch (error) {
-      console.debug('Supabase not configured or failed:', error);
-      setConversations([]);
+      console.error('Failed to load conversations:', error);
+      // Don't clear conversations on error - keep existing ones
+      // setConversations([]);
     }
   };
 
