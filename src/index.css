@@ -133,11 +133,11 @@ All colors MUST be HSL.
     --popover-foreground: 0 0% 98%;
 
     --primary: 328 85% 70%;
-    --primary-foreground: 336 83% 17%;
-    --primary-glow: 205 87% 70%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 205 87% 75%;
 
-    --secondary: 240 3% 46%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 240 15% 65%;
+    --secondary-foreground: 0 0% 100%;
 
     --muted: 240 3% 46%;
     --muted-foreground: 0 0% 98%;
