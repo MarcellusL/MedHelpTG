@@ -12,20 +12,31 @@ const SUPABASE_PUBLISHABLE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
 // Import the supabase client like this:
 // import { supabase } from "@/integrations/supabase/client";
 
-// Create client only if environment variables are provided
-// If not set, this will throw an error - set the env vars in Railway to fix
-if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
-  console.warn('Supabase environment variables not set. Some features may not work.');
-}
+// Check if Supabase is properly configured
+const isSupabaseConfigured = SUPABASE_URL && 
+                              SUPABASE_PUBLISHABLE_KEY && 
+                              SUPABASE_URL !== '' && 
+                              SUPABASE_PUBLISHABLE_KEY !== '' &&
+                              !SUPABASE_URL.includes('placeholder') &&
+                              !SUPABASE_PUBLISHABLE_KEY.includes('placeholder');
 
-export const supabase = createClient<Database>(
-  SUPABASE_URL || '',
-  SUPABASE_PUBLISHABLE_KEY || '',
-  {
-    auth: {
-      storage: localStorage,
-      persistSession: true,
-      autoRefreshToken: true,
-    }
-  }
-);
+// Create client only if environment variables are provided
+// If not set, create a mock client that fails gracefully
+export const supabase = isSupabaseConfigured
+  ? createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+      auth: {
+        storage: localStorage,
+        persistSession: true,
+        autoRefreshToken: true,
+      }
+    })
+  : ({
+      from: () => ({
+        insert: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+        select: () => Promise.resolve({ data: [], error: { message: 'Supabase not configured' } }),
+        delete: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      }),
+      functions: {
+        invoke: () => Promise.resolve({ data: null, error: { message: 'Supabase not configured' } }),
+      },
+    } as any);

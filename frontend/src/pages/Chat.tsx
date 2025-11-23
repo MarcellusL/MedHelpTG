@@ -76,75 +76,60 @@ const Chat = () => {
       }
     }
     
-    // Fallback to Supabase (only if configured)
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    
-    if (supabaseUrl && supabaseKey && supabaseUrl !== '' && supabaseKey !== '') {
-      try {
-        const { data, error } = await supabase
-          .from("messages")
-          .select("*")
-          .eq("conversation_id", id)
-          .order("created_at");
+    // Fallback to Supabase (the client now handles missing config gracefully)
+    try {
+      const { data, error } = await supabase
+        .from("messages")
+        .select("*")
+        .eq("conversation_id", id)
+        .order("created_at");
 
-        if (error) {
-          console.debug('Supabase load error:', error);
-          return;
-        }
-
-        if (data) {
-          const loadedMessages = data.map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
-          
-          // Merge with existing messages to avoid losing any that were just added
-          setMessages((prev) => {
-            if (prev.length === 0) {
-              return loadedMessages;
+      if (!error && data && data.length > 0) {
+        const loadedMessages = data.map((m) => ({ role: m.role as "user" | "assistant", content: m.content }));
+        
+        // Merge with existing messages to avoid losing any that were just added
+        setMessages((prev) => {
+          if (prev.length === 0) {
+            return loadedMessages;
+          }
+          // If we have existing messages, merge them with loaded ones, avoiding duplicates
+          const merged = [...prev];
+          loadedMessages.forEach((loadedMsg) => {
+            const exists = merged.some(
+              (m) => m.role === loadedMsg.role && m.content === loadedMsg.content
+            );
+            if (!exists) {
+              merged.push(loadedMsg);
             }
-            // If we have existing messages, merge them with loaded ones, avoiding duplicates
-            const merged = [...prev];
-            loadedMessages.forEach((loadedMsg) => {
-              const exists = merged.some(
-                (m) => m.role === loadedMsg.role && m.content === loadedMsg.content
-              );
-              if (!exists) {
-                merged.push(loadedMsg);
-              }
-            });
-            // Sort by order (user messages should come before their responses)
-            return merged;
           });
-          return;
-        }
-      } catch (error) {
-        console.debug('Supabase load skipped:', error);
+          // Sort by order (user messages should come before their responses)
+          return merged;
+        });
+        return;
       }
+    } catch (error) {
+      // Supabase not configured or failed - messages will be loaded from backend only
+      console.debug('Supabase load skipped:', error);
     }
-    
-    // If Supabase not configured or failed, messages will be loaded from backend only
   };
 
   const saveMessage = async (convId: string, role: string, content: string) => {
     // Save to Supabase for backward compatibility (only if Supabase is configured)
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-    const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-    
-    if (supabaseUrl && supabaseKey && supabaseUrl !== '' && supabaseKey !== '') {
-      try {
-        const result = supabase.from("messages").insert({
-          conversation_id: convId,
-          role,
-          content,
+    // The supabase client now handles missing config gracefully
+    try {
+      const result = supabase.from("messages").insert({
+        conversation_id: convId,
+        role,
+        content,
+      });
+      if (result && typeof result.then === 'function') {
+        await result.catch(() => {
+          // Ignore Supabase errors if using wallet-based storage
         });
-        if (result && typeof result.then === 'function') {
-          await result.catch(() => {
-            // Ignore Supabase errors if using wallet-based storage
-          });
-        }
-      } catch (error) {
-        // Ignore Supabase errors if using wallet-based storage
-        console.debug('Supabase save skipped:', error);
       }
+    } catch (error) {
+      // Ignore Supabase errors if using wallet-based storage
+      console.debug('Supabase save skipped:', error);
     }
     
     // Also save to backend if wallet is connected
@@ -184,24 +169,19 @@ const Chat = () => {
 
     // Create new conversation if needed
     if (!currentConvId) {
-      // Try Supabase first (if configured), otherwise create via backend or use UUID
-      const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-      const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
-      
-      if (supabaseUrl && supabaseKey && supabaseUrl !== '' && supabaseKey !== '') {
-        try {
-          const { data, error } = await supabase
-            .from("conversations")
-            .insert({ title: messageText.slice(0, 50) })
-            .select()
-            .single();
+      // Try Supabase first (the client now handles missing config gracefully)
+      try {
+        const { data, error } = await supabase
+          .from("conversations")
+          .insert({ title: messageText.slice(0, 50) })
+          .select()
+          .single();
 
-          if (!error && data) {
-            currentConvId = data.id;
-          }
-        } catch (error) {
-          console.debug('Supabase conversation creation skipped:', error);
+        if (!error && data) {
+          currentConvId = data.id;
         }
+      } catch (error) {
+        console.debug('Supabase conversation creation skipped:', error);
       }
       
       // If Supabase not configured or failed, generate UUID for conversation
