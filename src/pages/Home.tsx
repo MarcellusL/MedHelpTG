@@ -173,7 +173,7 @@ const Home = () => {
             </div>
             
             <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="flex gap-3 items-end">
+              <div className="flex flex-col md:flex-row gap-3 md:items-end">
                 <Textarea
                   placeholder={placeholderText}
                   value={prompt}
@@ -188,23 +188,25 @@ const Home = () => {
                   onChange={handleImageUpload}
                   className="hidden"
                 />
-                <Button 
-                  type="button"
-                  size="icon"
-                  onClick={() => fileInputRef.current?.click()}
-                  className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
-                  title="Upload image for classification"
-                >
-                  <Upload className="h-5 w-5 drop-shadow-md" />
-                </Button>
-                <Button 
-                  type="submit"
-                  size="icon"
-                  className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50"
-                  disabled={!prompt.trim()}
-                >
-                  <Send className="h-5 w-5 drop-shadow-md" />
-                </Button>
+                <div className="flex gap-3 justify-end md:justify-start">
+                  <Button 
+                    type="button"
+                    size="icon"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="bg-gradient-to-r from-secondary to-secondary/80 h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all"
+                    title="Upload image for classification"
+                  >
+                    <Upload className="h-5 w-5 drop-shadow-md" />
+                  </Button>
+                  <Button 
+                    type="submit"
+                    size="icon"
+                    className="bg-gradient-to-r from-primary to-primary-glow h-12 w-12 shadow-lg hover:shadow-xl hover:scale-105 transition-all disabled:opacity-50"
+                    disabled={!prompt.trim()}
+                  >
+                    <Send className="h-5 w-5 drop-shadow-md" />
+                  </Button>
+                </div>
               </div>
             </form>
 
