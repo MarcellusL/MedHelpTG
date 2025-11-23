@@ -14,7 +14,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { MessageSquare, Trash2 } from "lucide-react";
+import { MessageSquare, Trash2, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/contexts/WalletContext";
@@ -263,6 +263,21 @@ const History = () => {
             Clear History
           </Button>
         </div>
+
+        {/* Wallet Connection Warning */}
+        {!isConnected && (
+          <div className="mb-6 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                Chat history not saved without wallet connection
+              </p>
+              <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                Connect your MetaMask or Core wallet to save and access your chat history across devices. Without a wallet connection, your conversations will not be persisted and you may only see conversations from Supabase (if configured).
+              </p>
+            </div>
+          </div>
+        )}
 
         <ScrollArea className="h-[calc(100vh-200px)]">
           {conversations.length === 0 ? (

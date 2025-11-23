@@ -4,7 +4,7 @@ import Header from "@/components/Header";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { Send, History, Loader2 } from "lucide-react";
+import { Send, History, Loader2, Wallet, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useWallet } from "@/contexts/WalletContext";
@@ -291,6 +291,21 @@ const Chat = () => {
             View History
           </Button>
         </div>
+
+        {/* Wallet Connection Warning */}
+        {!isConnected && (
+          <div className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg flex items-start gap-3">
+            <AlertCircle className="h-5 w-5 text-yellow-600 dark:text-yellow-400 mt-0.5 flex-shrink-0" />
+            <div className="flex-1">
+              <p className="text-sm font-medium text-yellow-800 dark:text-yellow-200">
+                Chat history will not be saved
+              </p>
+              <p className="text-xs text-yellow-700 dark:text-yellow-300 mt-1">
+                Connect your MetaMask or Core wallet to save your chat history across devices. Without a wallet connection, your conversations will not be persisted.
+              </p>
+            </div>
+          </div>
+        )}
 
         <ScrollArea className="flex-1 border rounded-lg bg-card dark:bg-card p-4 mb-4">
           <div className="space-y-4 min-h-[400px]">
