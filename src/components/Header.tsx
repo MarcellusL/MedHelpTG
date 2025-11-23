@@ -1,4 +1,4 @@
-import { Sparkles, Home, Upload, Stethoscope, MapPin } from "lucide-react";
+import { Sparkles, Home, Upload, Stethoscope, MapPin, History } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
@@ -81,6 +81,14 @@ const Header = () => {
             >
               <MapPin className="h-4 w-4 mr-2" />
               Find Care
+            </NavLink>
+            <NavLink 
+              to="/history" 
+              className="flex items-center text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+              activeClassName="text-primary"
+            >
+              <History className="h-4 w-4 mr-2" />
+              History
             </NavLink>
           </nav>
 
