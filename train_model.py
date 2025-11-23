@@ -1,10 +1,9 @@
 """
 Training script for wound classification using classical ML.
 
-We avoid deep fine-tuning by:
+Uses:
   • Using MobileNetV2 only as a frozen feature extractor
   • Training a scikit-learn Logistic Regression classifier on top of those features
-This is much faster than full deep learning and still leverages rich image features.
 """
 
 import os
@@ -74,7 +73,7 @@ def load_data(primary_dir, extra_dirs=None):
 
     for dataset_dir in dataset_dirs:
         if not os.path.isdir(dataset_dir):
-            print(f"⚠️  Skipping missing dataset: {dataset_dir}")
+            print(f"  ! Skipping missing dataset: {dataset_dir}")
             continue
 
         dir_class_names = sorted([
@@ -83,10 +82,10 @@ def load_data(primary_dir, extra_dirs=None):
         ])
 
         if set(dir_class_names) != set(class_names):
-            print(f"⚠️  Dataset {dataset_dir} has different classes.")
-            print(f"    Expected: {class_names}")
-            print(f"    Found:    {dir_class_names}")
-            print("    Skipping this dataset to avoid label mismatch.\n")
+            print(f"  - Dataset {dataset_dir} has different classes.")
+            print(f"  - Expected: {class_names}")
+            print(f"  - Found:    {dir_class_names}")
+            print("   - Skipping this dataset to avoid label mismatch.\n")
             continue
 
         print(f"\nLoading dataset: {os.path.abspath(dataset_dir)}")
@@ -210,10 +209,10 @@ def main():
     print("CLASSICAL TRAINING PIPELINE (MobileNetV2 features + Logistic Regression)")
     print("=" * 60)
     print("\nAdvantages:")
-    print("  ✓ No deep fine-tuning (faster & hackathon-friendly)")
-    print("  ✓ Still leverages ImageNet features for texture/edge cues")
-    print("  ✓ Logistic Regression with class balancing")
-    print("  ✓ Built-in evaluation report + confusion matrix")
+    print("  - No deep fine-tuning (faster & hackathon-friendly)")
+    print("  - Still leverages ImageNet features for texture/edge cues")
+    print("  - Logistic Regression with class balancing")
+    print("  - Built-in evaluation report + confusion matrix")
     print("=" * 60 + "\n")
 
     images, labels, class_names = load_data(PRIMARY_DATA_DIR, EXTRA_DATA_DIRS)
@@ -272,11 +271,11 @@ def main():
 
     print("\nTraining complete!")
     if accuracy >= 0.8:
-        print("🎉 Target achieved: 80%+ accuracy.")
+        print("Target achieved: 80%+ accuracy.")
     elif accuracy >= 0.7:
-        print("✅ Solid result: 70%+ accuracy.")
+        print("Solid result: 70%+ accuracy.")
     else:
-        print("⚠️  Consider adding more data or merging similar classes.")
+        print("Need more data or merging similar classes.")
 
 
 if __name__ == "__main__":
