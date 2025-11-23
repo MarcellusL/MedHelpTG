@@ -69,10 +69,10 @@ def init_db():
 init_db()
 # Enable CORS with specific configuration for frontend
 CORS(app, resources={
-    r"/predict": {"origins": ["https://nexahealth.railway.app", "http://localhost:8080"]},
-    r"/chat": {"origins": ["https://nexahealth.railway.app", "http://localhost:8080"]},
+    r"/predict": {"origins": ["https://nexahealth.com", "http://localhost:8080"]},
+    r"/chat": {"origins": ["https://nexahealth.com", "http://localhost:8080"]},
     r"/health": {"origins": "*"},
-    r"/*": {"origins": ["https://nexahealth.railway.app", "http://localhost:8080"]}
+    r"/*": {"origins": ["https://nexahealth.com", "http://localhost:8080"]}
 }, supports_credentials=True)
 app.config['UPLOAD_FOLDER'] = os.path.join(BASE_DIR, 'uploads')
 app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size

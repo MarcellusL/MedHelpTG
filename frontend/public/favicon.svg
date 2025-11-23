@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+  <!-- Light blue-grey background -->
+  <rect width="100" height="100" fill="#E8EBED"/>
+  
+  <!-- Main four-pointed star with rounded points and concave edges (pink/magenta) -->
+  <path d="M50 15 
+           C55 25, 60 30, 65 40
+           L70 50
+           C65 50, 60 55, 55 65
+           L50 80
+           C45 65, 40 55, 35 50
+           L30 40
+           C35 30, 40 25, 45 15
+           Z" 
+        fill="#FF1493"/>
+  
+  <!-- Smaller rounded plus sign (upper right) -->
+  <g transform="translate(70, 25)">
+    <rect x="-2.5" y="-7" width="5" height="14" rx="2.5" fill="#FF1493"/>
+    <rect x="-7" y="-2.5" width="14" height="5" rx="2.5" fill="#FF1493"/>
+  </g>
+  
+  <!-- Smaller rounded flower/cross (lower left) -->
+  <g transform="translate(25, 70)">
+    <circle cx="0" cy="0" r="3.5" fill="#FF1493"/>
+    <rect x="-1.5" y="-5.5" width="3" height="11" rx="1.5" fill="#FF1493"/>
+    <rect x="-5.5" y="-1.5" width="11" height="3" rx="1.5" fill="#FF1493"/>
+  </g>
+</svg>
+
