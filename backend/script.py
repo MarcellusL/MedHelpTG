@@ -7,10 +7,9 @@ import os
 import requests
 from dotenv import load_dotenv
 
-# Load environment variables from .env file (in parent directory)
+# Load environment variables from .env file
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-PARENT_DIR = os.path.dirname(BASE_DIR)
-load_dotenv(dotenv_path=os.path.join(PARENT_DIR, '.env'))
+load_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))
 
 # Get API keys from environment variables (DO NOT HARD CODE)
 GENAI_KEY = os.getenv("GEMINI_API_KEY")
@@ -25,10 +24,10 @@ genai.configure(api_key=GENAI_KEY)
 model = genai.GenerativeModel("models/gemini-2.5-pro")
 bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
 
-# Use parent directory for config files (they're in root)
-SYMPTOM_CONFIG_PATH = os.path.join(PARENT_DIR, "symptoms_config.Json")
-FACILITY_PATH = os.path.join(PARENT_DIR, "facilities.json")
-KEYWORD_PATH = os.path.join(PARENT_DIR, "health_keywords.json")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+SYMPTOM_CONFIG_PATH = os.path.join(BASE_DIR, "symptoms_config.Json")
+FACILITY_PATH = os.path.join(BASE_DIR, "facilities.json")
+KEYWORD_PATH = os.path.join(BASE_DIR, "health_keywords.json")
 
 # Load health keywords
 try:

@@ -8,7 +8,6 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { ArrowLeft, MapPin, Phone, ExternalLink, Navigation } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { API_CONFIG } from "@/config/api";
 import Header from "@/components/Header";
 
 interface Facility {
@@ -194,7 +193,7 @@ const FacilityMap = () => {
                     height="400"
                     frameBorder="0"
                     style={{ border: 0 }}
-                    src={`https://www.google.com/maps/embed/v1/place?key=${API_CONFIG.GOOGLE_MAPS_API_KEY}&q=${facilities[0].lat},${facilities[0].lng}&zoom=14`}
+                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${facilities[0].lat},${facilities[0].lng}&zoom=14`}
                     allowFullScreen
                     className="rounded-lg"
                   ></iframe>

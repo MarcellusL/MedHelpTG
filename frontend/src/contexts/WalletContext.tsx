@@ -1,120 +1,70 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { BrowserProvider } from 'ethers';
-import { useToast } from '@/hooks/use-toast';
+import React, { createContext, useContext, useState, useEffect, useCallback } from "react";
+import { BrowserProvider } from "ethers";
 
-interface WalletContextType {
+const WALLET_STORAGE_KEY = "medstate_wallet_address";
+
+type WalletContextType = {
   walletAddress: string | null;
   isConnected: boolean;
-  connectWallet: () => Promise<void>;
-  disconnectWallet: () => void;
-  signMessage: (message: string) => Promise<string | null>;
-}
-
-const WalletContext = createContext<WalletContextType | undefined>(undefined);
-
-export const useWallet = () => {
-  const context = useContext(WalletContext);
-  if (!context) {
-    throw new Error('useWallet must be used within WalletProvider');
-  }
-  return context;
+  connect: () => Promise<void>;
+  disconnect: () => void;
 };
 
-interface WalletProviderProps {
-  children: ReactNode;
-}
+const WalletContext = createContext<WalletContextType | null>(null);
 
-export const WalletProvider: React.FC<WalletProviderProps> = ({ children }) => {
+export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
-  const { toast } = useToast();
+  const [isConnected, setIsConnected] = useState(false);
 
-  // Load wallet address from localStorage on mount
-  useEffect(() => {
-    const savedAddress = localStorage.getItem('walletAddress');
-    if (savedAddress) {
-      setWalletAddress(savedAddress);
+  const connect = useCallback(async () => {
+    try {
+      if (typeof window === "undefined" || !window.ethereum) {
+        console.warn("No wallet extension found (MetaMask, Core, etc.)");
+        return;
+      }
+      const provider = new BrowserProvider(window.ethereum);
+      const signer = await provider.getSigner();
+      const address = await signer.getAddress();
+      setWalletAddress(address);
+      setIsConnected(true);
+      window.localStorage.setItem(WALLET_STORAGE_KEY, address);
+    } catch (err) {
+      console.error("Failed to connect wallet:", err);
     }
   }, []);
 
-  const connectWallet = async () => {
-    try {
-      // Check if ethereum provider is available (MetaMask, Core, etc.)
-      if (typeof window === 'undefined' || !(window as any).ethereum) {
-        toast({
-          title: 'Wallet Not Found',
-          description: 'Please install MetaMask or Core wallet extension to connect.',
-          variant: 'destructive',
-        });
-        return;
-      }
-
-      const ethereum = (window as any).ethereum;
-      
-      // Request account access
-      const provider = new BrowserProvider(ethereum);
-      const accounts = await provider.send('eth_requestAccounts', []);
-
-      if (accounts && accounts.length > 0) {
-        const address = accounts[0];
-        setWalletAddress(address);
-        localStorage.setItem('walletAddress', address);
-        
-        toast({
-          title: 'Wallet Connected',
-          description: `Connected to ${address.slice(0, 6)}...${address.slice(-4)}`,
-        });
-      }
-    } catch (error: any) {
-      console.error('Wallet connection error:', error);
-      toast({
-        title: 'Connection Failed',
-        description: error.message || 'Failed to connect wallet',
-        variant: 'destructive',
-      });
-    }
-  };
-
-  const disconnectWallet = () => {
+  const disconnect = useCallback(() => {
     setWalletAddress(null);
-    localStorage.removeItem('walletAddress');
-    toast({
-      title: 'Wallet Disconnected',
-    });
-  };
+    setIsConnected(false);
+    window.localStorage.removeItem(WALLET_STORAGE_KEY);
+  }, []);
 
-  const signMessage = async (message: string): Promise<string | null> => {
-    if (!walletAddress) return null;
-
-    try {
-      if (typeof window === 'undefined' || !(window as any).ethereum) {
-        return null;
-      }
-
-      const ethereum = (window as any).ethereum;
-      const provider = new BrowserProvider(ethereum);
-      const signer = await provider.getSigner();
-      
-      // Sign message
-      const signature = await signer.signMessage(message);
-      return signature;
-    } catch (error) {
-      console.error('Message signing error:', error);
-      return null;
+  useEffect(() => {
+    const stored = window.localStorage.getItem(WALLET_STORAGE_KEY);
+    if (stored) {
+      setWalletAddress(stored);
+      setIsConnected(true);
     }
+  }, []);
+
+  const value: WalletContextType = {
+    walletAddress,
+    isConnected,
+    connect,
+    disconnect,
   };
 
   return (
-    <WalletContext.Provider
-      value={{
-        walletAddress,
-        isConnected: !!walletAddress,
-        connectWallet,
-        disconnectWallet,
-        signMessage,
-      }}
-    >
+    <WalletContext.Provider value={value}>
       {children}
     </WalletContext.Provider>
   );
-};
+}
 
+export function useWallet(): WalletContextType {
+  const ctx = useContext(WalletContext);
+  if (!ctx) {
+    throw new Error("useWallet must be used within a WalletProvider");
+  }
+  return ctx;
+}

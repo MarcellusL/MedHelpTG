@@ -5,7 +5,6 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ArrowLeft, MapPin, AlertCircle, CheckCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import { API_CONFIG } from "@/config/api";
 import Header from "@/components/Header";
 
@@ -14,6 +13,77 @@ interface AnalysisResult {
   confidence: number;
   severity: string;
   recommendation: string;
+}
+
+/** Rule-based severity from wound label and symptoms (matches original Supabase logic) */
+function calculateSeverity(
+  woundLabel: string,
+  pain: number,
+  bleeding: string,
+  swelling: boolean
+): { severity: string; recommendation: string } {
+  const label = woundLabel.toLowerCase();
+  if (label.includes("stab")) {
+    return {
+      severity: "TraumaCenter",
+      recommendation:
+        "Stab wounds require immediate emergency care. Go to the nearest trauma center or call 911.",
+    };
+  }
+  if (label.includes("laceration") && bleeding === "heavy") {
+    return {
+      severity: "ER",
+      recommendation:
+        "Deep lacerations with heavy bleeding need emergency room care. Apply pressure and seek immediate medical attention.",
+    };
+  }
+  if (label.includes("burn") && pain >= 7) {
+    return {
+      severity: "ER",
+      recommendation:
+        "Severe burns require emergency room treatment. Keep the burn cool and clean while traveling to the ER.",
+    };
+  }
+  if (label.includes("bruise") && swelling) {
+    return {
+      severity: "UrgentCare",
+      recommendation:
+        "Bruises with significant swelling should be evaluated at an urgent care facility to rule out internal damage.",
+    };
+  }
+  if ((label.includes("abrasion") || label.includes("cut")) && pain <= 3) {
+    return {
+      severity: "SelfCare",
+      recommendation:
+        "Minor abrasions and cuts can typically be treated at home. Clean the wound, apply antibiotic ointment, and bandage. Watch for signs of infection.",
+    };
+  }
+  if (pain >= 8) {
+    return {
+      severity: "ER",
+      recommendation:
+        "High pain levels indicate a serious injury. Visit the emergency room for proper evaluation and pain management.",
+    };
+  }
+  if (bleeding === "heavy") {
+    return {
+      severity: "ER",
+      recommendation:
+        "Heavy bleeding requires emergency care. Apply firm pressure and head to the nearest emergency room.",
+    };
+  }
+  if (pain >= 5 || bleeding === "mild") {
+    return {
+      severity: "UrgentCare",
+      recommendation:
+        "Your symptoms suggest you should visit an urgent care facility for proper wound care and evaluation.",
+    };
+  }
+  return {
+    severity: "SelfCare",
+    recommendation:
+      "Based on your symptoms, you may be able to treat this wound at home with proper first aid. Monitor for signs of infection such as increased redness, warmth, or pus.",
+  };
 }
 
 const Results = () => {
@@ -42,60 +112,39 @@ const Results = () => {
       const symptoms = JSON.parse(storedSymptoms);
 
       try {
-        // Call backend classification endpoint
-        console.log('Calling backend at:', `${API_CONFIG.BACKEND_URL}/predict`);
-        
-        const response = await fetch(`${API_CONFIG.BACKEND_URL}/predict`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ image: storedImage })
-        }).catch((fetchError) => {
-          console.error('Fetch error:', fetchError);
-          throw new Error(
-            `Failed to connect to backend at ${API_CONFIG.BACKEND_URL}. ` +
-            `Make sure the backend server is running. Error: ${fetchError.message}`
-          );
+        // Call backend ML classification endpoint
+        const classRes = await fetch(`${API_CONFIG.BACKEND_URL}/predict`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: storedImage }),
         });
 
-        if (!response.ok) {
-          let errorMessage = 'Classification failed';
-          try {
-            const errorData = await response.json();
-            errorMessage = errorData.error || errorMessage;
-          } catch (e) {
-            errorMessage = `Server returned ${response.status}: ${response.statusText}`;
-          }
-          throw new Error(errorMessage);
+        if (!classRes.ok) {
+          const err = await classRes.json().catch(() => ({}));
+          throw new Error(err.error || `Classification failed: ${classRes.status}`);
         }
 
-        const classificationData = await response.json();
+        const classificationData = await classRes.json();
 
-        // Call severity calculation endpoint
-        const { data: severityData, error: sevError } = await supabase.functions.invoke('calculate-severity', {
-          body: {
-            woundLabel: classificationData.label,
-            pain: symptoms.painLevel,
-            bleeding: symptoms.bleeding,
-            swelling: symptoms.swelling
-          }
-        });
-
-        if (sevError) throw sevError;
+        // Severity calculation (rule-based, done client-side)
+        const severityData = calculateSeverity(
+          classificationData.label,
+          symptoms.painLevel ?? 5,
+          symptoms.bleeding ?? "none",
+          symptoms.swelling ?? false
+        );
 
         setResult({
           woundType: classificationData.label,
           confidence: classificationData.confidence,
           severity: severityData.severity,
-          recommendation: severityData.recommendation
+          recommendation: severityData.recommendation,
         });
       } catch (error) {
         console.error('Analysis error:', error);
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
         toast({
           title: "Analysis failed",
-          description: errorMessage || "Unable to analyze wound. Please make sure the backend server is running at http://localhost:5001",
+          description: "Unable to analyze wound. Please try again.",
           variant: "destructive",
         });
       } finally {
@@ -179,17 +228,19 @@ const Results = () => {
             </Card>
           )}
 
-          {/* Primary Classification Result - Top Identifier */}
-          <Card className="p-8 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-primary/10">
-            <div className="text-center space-y-4">
-              <div className="text-sm font-medium text-muted-foreground uppercase tracking-wide">
-                Classification Result
+          {/* Classification Results */}
+          <Card className="p-6 shadow-[var(--shadow-elevated)]">
+            <h2 className="text-xl font-bold mb-4">Classification</h2>
+            <div className="space-y-3">
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Wound Type:</span>
+                <Badge variant="secondary" className="text-base">
+                  {result.woundType}
+                </Badge>
               </div>
-              <div className="text-4xl md:text-5xl font-bold text-foreground">
-                {result.woundType}
-              </div>
-              <div className="text-lg text-muted-foreground">
-                Confidence: <span className="font-semibold text-foreground">{(result.confidence * 100).toFixed(1)}%</span>
+              <div className="flex justify-between items-center">
+                <span className="text-muted-foreground">Confidence:</span>
+                <span className="font-semibold">{(result.confidence * 100).toFixed(1)}%</span>
               </div>
             </div>
           </Card>

@@ -9,7 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import { CometCard } from "@/components/ui/comet-card";
 import heroBackground from "@/assets/healthcare-hero-bg.jpg";
-import avaxLogo from "@/assets/Avalanche_logo.png";
 
 const Home = () => {
   const navigate = useNavigate();
@@ -24,12 +23,12 @@ const Home = () => {
   const [isDeleting, setIsDeleting] = useState(false);
   
   const healthQuestions = [
-    "What are the symptoms of a common cold?",
-    "How can I manage stress and anxiety?",
-    "What should I do for a headache?",
-    "How much water should I drink daily?",
-    "What are healthy eating habits?",
-    "How can I improve my sleep quality?",
+    "What does this rash look like?",
+    "How severe is this wound?",
+    "Should I go to the ER or urgent care?",
+    "What kind of burn is this?",
+    "Is this cut infected?",
+    "What are these spots on my skin?",
   ];
 
   const medicalKeywords = [
@@ -76,8 +75,6 @@ const Home = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!prompt.trim()) return;
-    
     const lowerPrompt = prompt.toLowerCase();
     const hasMedicalKeyword = medicalKeywords.some(keyword => 
       lowerPrompt.includes(keyword)
@@ -90,11 +87,12 @@ const Home = () => {
         description: "For wound or skin-related queries, we recommend uploading an image for accurate assessment.",
       });
     } else {
-      // Navigate to chat page with the question
-      // Store the initial message in sessionStorage for the chat page
-      const initialMessage = prompt.trim();
-      sessionStorage.setItem('initialChatMessage', initialMessage);
-      navigate("/chat");
+      toast({
+        title: "Language Learning Mode",
+        description: `Processing: "${prompt}"`,
+      });
+      setPrompt("");
+      setShowImagePrompt(false);
     }
   };
 
@@ -156,19 +154,12 @@ const Home = () => {
               NexaHealth
             </h1>
           </div>
-              <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto mb-8">
-                AI-powered language learning and medical assessment. Ask anything or scan wounds for instant analysis.
-              </p>
-              
-              <div className="inline-flex items-center gap-3 px-6 py-3 rounded-full bg-[#E84142]/20 border border-[#E84142]/30 shadow-sm mb-8 hover:bg-[#E84142]/25 transition-colors">
-                <img src={avaxLogo} alt="Avalanche Logo" className="h-6 w-6 object-contain" />
-                <span className="text-sm font-medium text-foreground">
-                  Chat history powered by <span className="font-bold text-[#E84142]">Avalanche (AVAX)</span> protocol
-                </span>
-              </div>
-            </div>
+          <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
+            AI-powered language learning and medical assessment. Ask anything or scan wounds for instant analysis.
+          </p>
+        </div>
 
-            {/* Main Language Prompt Card */}
+        {/* Main Language Prompt Card */}
         <Card className="max-w-3xl mx-auto p-12 md:p-16 shadow-[var(--shadow-elevated)] border-2 border-primary/20 bg-card backdrop-blur-sm mb-16">
           <div className="space-y-8">
             <div className="text-center">

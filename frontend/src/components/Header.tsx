@@ -5,7 +5,6 @@ import { Send } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { NavLink } from "@/components/NavLink";
-import { WalletButton } from "@/components/WalletButton";
 import { motion } from "framer-motion";
 import {
   Sheet,
@@ -161,32 +160,18 @@ const Header = () => {
                     <History className="h-5 w-5 mr-3" />
                     History
                   </NavLink>
-                  <Button
-                    variant="default"
-                    className="w-full justify-start gap-3 mt-2"
-                    onClick={() => {
-                      window.open('https://t.me/Haacckkorg_bot', '_blank');
-                      setIsSheetOpen(false);
-                    }}
-                  >
-                    <Send className="h-5 w-5" />
-                    Chat on Telegram
-                  </Button>
                 </nav>
               </SheetContent>
             </Sheet>
 
             <ThemeToggle />
             
-            {/* Wallet Connection Button */}
-            <WalletButton />
-            
             {/* Telegram Button - Hidden on small screens */}
             <Button 
               variant="default"
               size="default"
               className="gap-2 hidden sm:flex"
-              onClick={() => window.open('https://t.me/Haacckkorg_bot', '_blank')}
+              onClick={() => window.open('#', '_blank')}
             >
               <Send className="h-4 w-4" />
               Chat on Telegram

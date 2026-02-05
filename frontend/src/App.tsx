@@ -21,23 +21,23 @@ const App = () => (
   <QueryClientProvider client={queryClient}>
     <ThemeProvider defaultTheme="light" storageKey="nexahealth-theme">
       <WalletProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/upload" element={<Upload />} />
-              <Route path="/symptoms" element={<Symptoms />} />
-              <Route path="/results" element={<Results />} />
-              <Route path="/facility-map" element={<FacilityMap />} />
-              <Route path="/chat" element={<Chat />} />
-              <Route path="/history" element={<History />} />
-              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </TooltipProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/upload" element={<Upload />} />
+            <Route path="/symptoms" element={<Symptoms />} />
+            <Route path="/results" element={<Results />} />
+            <Route path="/facility-map" element={<FacilityMap />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/history" element={<History />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
       </WalletProvider>
     </ThemeProvider>
   </QueryClientProvider>

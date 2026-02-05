@@ -36,7 +36,10 @@ tf.random.set_seed(42)
 # -------------------------------------------------------------
 # Configuration - extensible dataset loading + classical model
 # -------------------------------------------------------------
-PRIMARY_DATA_DIR = "../Wound_dataset"
+# Wound_dataset lives in project root (parent of backend/)
+_BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+_PRJ_ROOT = os.path.dirname(_BASE_DIR)
+PRIMARY_DATA_DIR = os.path.join(_PRJ_ROOT, "Wound_dataset")
 EXTRA_DATA_DIRS = [
     # "/absolute/path/to/another/wound_dataset",
 ]

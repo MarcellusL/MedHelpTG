@@ -4,40 +4,15 @@ from collections import Counter, defaultdict
 import google.generativeai as genai
 import json
 import os
-import requests
-from dotenv import load_dotenv
 
-# Load environment variables from .env file
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-load_dotenv(dotenv_path=os.path.join(BASE_DIR, '.env'))
-
-# Get API keys from environment variables (DO NOT HARD CODE)
-GENAI_KEY = os.getenv("GEMINI_API_KEY")
-if not GENAI_KEY:
-    raise ValueError("GEMINI_API_KEY environment variable is required. Create a .env file with GEMINI_API_KEY=your_key")
-
-TELEGRAM_BOT_TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")
-if not TELEGRAM_BOT_TOKEN:
-    raise ValueError("TELEGRAM_BOT_TOKEN environment variable is required. Create a .env file with TELEGRAM_BOT_TOKEN=your_token")
-
-genai.configure(api_key=GENAI_KEY)
-model = genai.GenerativeModel("models/gemini-2.5-pro")
-bot = telebot.TeleBot(TELEGRAM_BOT_TOKEN)
+GENAI_KEY = "Gemini_API"
+model = genai.GenerativeModel("Gemeni_Ver")
+bot = telebot.TeleBot('TELEGRAMBOT_TOKEN')
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SYMPTOM_CONFIG_PATH = os.path.join(BASE_DIR, "symptoms_config.Json")
+SYMPTOM_CONFIG_PATH = os.path.join(BASE_DIR, "symptoms_config.json")
 FACILITY_PATH = os.path.join(BASE_DIR, "facilities.json")
-KEYWORD_PATH = os.path.join(BASE_DIR, "health_keywords.json")
 
-# Load health keywords
-try:
-    with open(KEYWORD_PATH, "r", encoding="utf-8") as f:
-        HEALTH_KEYWORDS = json.load(f)["keywords"]
-except FileNotFoundError:
-    print(f"Warning: {KEYWORD_PATH} not found. Health keyword filtering disabled.")
-    HEALTH_KEYWORDS = []
-
-# Load symptom config
 with open(SYMPTOM_CONFIG_PATH, "r", encoding="utf-8") as f:
     RAW_SYMPTOM_CONFIG = json.load(f)
 
@@ -126,27 +101,6 @@ Provide a concise, safe triage summary:
         return (response.text or "").strip()
     except Exception:
         return "I could not create a summary."
-
-
-def is_relevant_text(text: str, counts: Counter) -> bool:
-    """
-    Decides if a free text message should be answered by the AI.
-    """
-    # user already selected symptoms → always relevant
-    if sum(counts.values()) > 0:
-        return True
-
-    t = text.lower()
-
-    # check JSON-loaded keywords
-    if HEALTH_KEYWORDS and any(word in t for word in HEALTH_KEYWORDS):
-        return True
-
-    # check if the text mentions any known symptom
-    if any(sym.lower() in t for sym in SYMPTOMS.keys()):
-        return True
-
-    return False
 
 
 def gemini_chat_reply(user_text, counts=None, details=None):
@@ -360,8 +314,8 @@ def start(message):
     safe_delete(chat_id, message.message_id)
 
 
-@bot.message_handler(commands=["help", "reset", "linkwallet"])
-def help_or_reset_or_link(message):
+@bot.message_handler(commands=["help", "reset"])
+def help_or_reset(message):
     chat_id = message.chat.id
 
     if message.text == "/help":
@@ -377,18 +331,6 @@ def help_or_reset_or_link(message):
         user_state.pop(chat_id, None)
         last_bot_msg.pop(chat_id, None)
         send_clean_message(chat_id, "Reset complete. Use /start to begin again.")
-        safe_delete(chat_id, message.message_id)
-        return
-
-    if message.text == "/linkwallet":
-        send_clean_message(
-            chat_id,
-            "To link your wallet for cross-platform chat history:\n\n"
-            "1. Connect your wallet on the web app\n"
-            "2. Use the /linkwallet command with your wallet address:\n"
-            "   /linkwallet 0xYourWalletAddress\n\n"
-            "This will sync your chat history across Telegram and the web app."
-        )
         safe_delete(chat_id, message.message_id)
         return
 
@@ -456,45 +398,6 @@ def handle_message(message):
         safe_delete(chat_id, message.message_id)
         return
 
-    # link wallet command with address
-    if text.startswith("/linkwallet "):
-        wallet_address = text.replace("/linkwallet ", "").strip()
-        
-        # Basic validation
-        if not wallet_address.startswith("0x") or len(wallet_address) != 42:
-            send_clean_message(chat_id, "Invalid wallet address format. Please provide a valid Ethereum/Avalanche address (0x...).")
-            safe_delete(chat_id, message.message_id)
-            return
-        
-        # Link wallet to Telegram user ID via backend API
-        try:
-            backend_url = os.getenv("BACKEND_URL", "http://localhost:5001")
-            response = requests.post(
-                f"{backend_url}/wallet/link-telegram",
-                json={
-                    "telegram_user_id": str(chat_id),
-                    "wallet_address": wallet_address,
-                    "signature": ""  # In production, require signature verification
-                },
-                timeout=5
-            )
-            
-            if response.status_code == 200:
-                send_clean_message(
-                    chat_id,
-                    f"✅ Wallet linked successfully!\n\n"
-                    f"Address: {wallet_address}\n\n"
-                    f"Your chat history will now sync across Telegram and the web app."
-                )
-            else:
-                send_clean_message(chat_id, "Failed to link wallet. Please try again later.")
-        except Exception as e:
-            print(f"Error linking wallet: {e}")
-            send_clean_message(chat_id, "Failed to link wallet. Please try again later.")
-        
-        safe_delete(chat_id, message.message_id)
-        return
-
     # user typed a symptom name directly
     if text in SYMPTOMS:
         state = get_state(chat_id)
@@ -503,13 +406,9 @@ def handle_message(message):
         safe_delete(chat_id, message.message_id)
         return
 
-    # free text -> Gemini (with guardrails)
+    # free text -> Gemini
     counts = user_symptoms[chat_id]
     details = user_state.get(chat_id, {}).get("details", {})
-
-    # if message is not health-related and no symptoms selected, ignore it
-    if not is_relevant_text(text, counts):
-        return
 
     thinking = bot.send_message(chat_id, "Thinking...")
     try:
