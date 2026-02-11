@@ -2,22 +2,19 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { ArrowLeft, MapPin, Phone, ExternalLink, Navigation } from "lucide-react";
+import { ArrowLeft, MapPin, ExternalLink, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
 import Header from "@/components/Header";
 
 interface Facility {
   name: string;
-  type: string;
+  address: string;
+  hours?: string;
+  map_url: string;
   lat: number;
   lng: number;
-  address?: string;
-  phone?: string;
-  distance?: number;
 }
 
 const FacilityMap = () => {
@@ -25,13 +22,18 @@ const FacilityMap = () => {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [facilities, setFacilities] = useState<Facility[]>([]);
-  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedType, setSelectedType] = useState<string>("UrgentCare");
   const [hasSearched, setHasSearched] = useState(false);
 
+  const typeMap: Record<string, string> = {
+    SelfCare: "appointment",
+    UrgentCare: "urgent",
+    ER: "er",
+    TraumaCenter: "trauma",
+  };
+
   useEffect(() => {
-    // Check if coming from assessment flow
-    const severityType = sessionStorage.getItem('severityType');
+    const severityType = sessionStorage.getItem("severityType");
     if (severityType) {
       setSelectedType(severityType);
       handleSearch(severityType);
@@ -43,67 +45,23 @@ const FacilityMap = () => {
     setLoading(true);
     setHasSearched(true);
 
-    // Get user location
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        async (position) => {
-          const location = {
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          };
-          setUserLocation(location);
-
-          try {
-            const { data, error } = await supabase.functions.invoke('find-facilities', {
-              body: {
-                type: searchType,
-                lat: location.lat,
-                lng: location.lng
-              }
-            });
-
-            if (error) throw error;
-            setFacilities(data.facilities || []);
-          } catch (error) {
-            console.error('Error loading facilities:', error);
-            toast({
-              title: "Error loading facilities",
-              description: "Unable to find nearby facilities",
-              variant: "destructive",
-            });
-          } finally {
-            setLoading(false);
-          }
-        },
-        (error) => {
-          console.error('Geolocation error:', error);
-          toast({
-            title: "Location access denied",
-            description: "Please enable location services to find nearby facilities",
-            variant: "destructive",
-          });
-          setLoading(false);
-        }
-      );
-    } else {
+    try {
+      const response = await fetch("/facilities.json");
+      if (!response.ok) throw new Error("Failed to load facilities");
+      
+      const data = await response.json();
+      const category = typeMap[searchType] || "urgent";
+      setFacilities(data[category] || []);
+    } catch (error) {
+      console.error("Error loading facilities:", error);
       toast({
-        title: "Geolocation not supported",
-        description: "Your browser doesn't support location services",
+        title: "Error loading facilities",
+        description: "Unable to load facility data",
         variant: "destructive",
       });
+    } finally {
       setLoading(false);
     }
-  };
-
-  const getGoogleMapsUrl = (facility: Facility) => {
-    return `https://www.google.com/maps/search/?api=1&query=${facility.lat},${facility.lng}`;
-  };
-
-  const getDirectionsUrl = (facility: Facility) => {
-    if (userLocation) {
-      return `https://www.google.com/maps/dir/?api=1&origin=${userLocation.lat},${userLocation.lng}&destination=${facility.lat},${facility.lng}`;
-    }
-    return getGoogleMapsUrl(facility);
   };
 
   if (loading) {
@@ -186,14 +144,14 @@ const FacilityMap = () => {
           {hasSearched && (
             <>
               {/* Map Embed */}
-              {userLocation && facilities.length > 0 && (
+              {facilities.length > 0 && (
                 <Card className="p-4 shadow-[var(--shadow-elevated)] overflow-hidden">
                   <iframe
                     width="100%"
                     height="400"
                     frameBorder="0"
                     style={{ border: 0 }}
-                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${facilities[0].lat},${facilities[0].lng}&zoom=14`}
+                    src={`https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dZWTgaQzuU17R8&q=${facilities[0].lat},${facilities[0].lng}&zoom=13`}
                     allowFullScreen
                     className="rounded-lg"
                   ></iframe>
@@ -205,52 +163,28 @@ const FacilityMap = () => {
                 <div className="space-y-4">
                   {facilities.map((facility, index) => (
                     <Card key={index} className="p-6 shadow-[var(--shadow-card)] hover:shadow-[var(--shadow-elevated)] transition-shadow">
-                      <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-start gap-3 mb-2">
-                            <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
-                            <div>
-                              <h3 className="text-xl font-bold">{facility.name}</h3>
-                              <Badge variant="secondary" className="mt-1">
-                                {facility.type.replace(/([A-Z])/g, ' $1').trim()}
-                              </Badge>
-                            </div>
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-start gap-3">
+                          <MapPin className="h-5 w-5 text-primary flex-shrink-0 mt-1" />
+                          <div className="flex-1">
+                            <h3 className="text-xl font-bold mb-1">{facility.name}</h3>
+                            <p className="text-sm text-muted-foreground">{facility.address}</p>
+                            {facility.hours && (
+                              <div className="flex items-center gap-2 mt-2">
+                                <Clock className="h-4 w-4 text-muted-foreground" />
+                                <span className="text-sm text-muted-foreground">{facility.hours}</span>
+                              </div>
+                            )}
                           </div>
-                          {facility.address && (
-                            <p className="text-sm text-muted-foreground ml-8">{facility.address}</p>
-                          )}
-                          {facility.phone && (
-                            <div className="flex items-center gap-2 mt-2 ml-8">
-                              <Phone className="h-4 w-4 text-muted-foreground" />
-                              <a href={`tel:${facility.phone}`} className="text-sm text-primary hover:underline">
-                                {facility.phone}
-                              </a>
-                            </div>
-                          )}
-                          {facility.distance && (
-                            <p className="text-sm font-medium text-primary ml-8 mt-2">
-                              {facility.distance.toFixed(1)} miles away
-                            </p>
-                          )}
                         </div>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => window.open(getGoogleMapsUrl(facility), '_blank')}
-                          >
-                            <ExternalLink className="h-4 w-4 mr-2" />
-                            View on Map
-                          </Button>
-                          <Button
-                            size="sm"
-                            className="bg-gradient-to-r from-primary to-primary-glow"
-                            onClick={() => window.open(getDirectionsUrl(facility), '_blank')}
-                          >
-                            <Navigation className="h-4 w-4 mr-2" />
-                            Get Directions
-                          </Button>
-                        </div>
+                        <Button
+                          size="sm"
+                          className="bg-gradient-to-r from-primary to-primary-glow w-full"
+                          onClick={() => window.open(facility.map_url, "_blank")}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          View on Google Maps
+                        </Button>
                       </div>
                     </Card>
                   ))}
