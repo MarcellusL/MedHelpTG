@@ -1,131 +1,142 @@
 #!/bin/bash
-# Start backend, frontend, and Telegram bot
-# Usage: ./start_all.sh
+#
+# Start MedState: backend, frontend, and optionally the Telegram bot.
+# Usage: ./start_all.sh [--no-bot]
+#
+# Services:
+#   Backend:  http://localhost:5001
+#   Frontend: http://localhost:8080
+#
+
+set -e
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+BACKEND_DIR="$SCRIPT_DIR/backend"
+FRONTEND_DIR="$SCRIPT_DIR/frontend"
+LOG_DIR="${TMPDIR:-/tmp}"
+BACKEND_LOG="$LOG_DIR/medstate_backend.log"
+FRONTEND_LOG="$LOG_DIR/medstate_frontend.log"
+BOT_LOG="$LOG_DIR/medstate_bot.log"
 
-echo "🚀 Starting MedState Application"
-echo ""
-echo "This will start:"
-echo "  1. Backend server (http://localhost:5001)"
-echo "  2. Frontend dev server (http://localhost:5173)"
-echo "  3. Telegram bot"
-echo ""
-echo "⚠️  Note: This runs all services in the background."
-echo "   For better control, run each in separate terminals:"
-echo "   - Terminal 1: cd backend && ./run_backend.sh"
-echo "   - Terminal 2: cd frontend && ./run_frontend.sh"
-echo "   - Terminal 3: cd backend && ./start_bot.sh"
-echo ""
-read -p "Continue? (y/n) " -n 1 -r
-echo
-if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    exit 0
+START_BOT=true
+if [[ "$1" == "--no-bot" ]]; then
+  START_BOT=false
 fi
 
-# Function to cleanup on exit
 cleanup() {
-    echo ""
-    echo "Stopping all services..."
-    kill $BACKEND_PID $FRONTEND_PID $BOT_PID 2>/dev/null
-    pkill -f "backend/script.py" 2>/dev/null
-    exit
+  echo ""
+  echo "Stopping services..."
+  [[ -n "$BACKEND_PID" ]] && kill "$BACKEND_PID" 2>/dev/null || true
+  [[ -n "$FRONTEND_PID" ]] && kill "$FRONTEND_PID" 2>/dev/null || true
+  [[ -n "$BOT_PID" ]] && kill "$BOT_PID" 2>/dev/null || true
+  pkill -f "backend/app.py" 2>/dev/null || true
+  pkill -f "backend/script.py" 2>/dev/null || true
+  pkill -f "vite" 2>/dev/null || true
+  echo "Done."
+  exit 0
 }
+
 trap cleanup INT TERM
 
-# Kill any existing bot instances (more aggressive)
-echo "Cleaning up any existing processes..."
-pkill -9 -f "backend/script.py" 2>/dev/null
-pkill -9 -f "script.py" 2>/dev/null
-pkill -9 -f "telebot" 2>/dev/null
-sleep 3
+echo "MedState - Starting services"
+echo ""
 
-# Verify no bot processes are running
-if pgrep -f "script.py" > /dev/null; then
-    echo "⚠️  Warning: Some bot processes may still be running"
-    pkill -9 -f "script.py" 2>/dev/null
-    sleep 2
+# --- Backend ---
+echo "[1/3] Backend (Flask)"
+cd "$BACKEND_DIR"
+
+if [[ ! -d "venv" ]]; then
+  echo "  Creating virtual environment..."
+  python3 -m venv venv
 fi
 
-# Start backend
-echo ""
-echo "📦 Starting backend server..."
-cd "$SCRIPT_DIR/backend"
-./run_backend.sh > /tmp/medstate_backend.log 2>&1 &
+source venv/bin/activate
+pip install -q --upgrade pip 2>/dev/null || true
+pip install -q -r requirements.txt 2>/dev/null || true
+
+if [[ ! -f "wound_classifier.joblib" ]] || [[ ! -f "class_names.pkl" ]]; then
+  echo "  Warning: Model files not found. Run 'cd backend && python3 train_model.py' first."
+  echo "  Backend will start but wound classification may fail."
+fi
+
+python3 app.py >> "$BACKEND_LOG" 2>&1 &
 BACKEND_PID=$!
-echo "   Backend PID: $BACKEND_PID"
-echo "   Logs: tail -f /tmp/medstate_backend.log"
+echo "  Started (PID $BACKEND_PID)"
+echo "  Logs: tail -f $BACKEND_LOG"
 
-# Wait a bit for backend to start
-sleep 3
-
-# Start frontend
-echo ""
-echo "🎨 Starting frontend server..."
-cd "$SCRIPT_DIR/frontend" || {
-    echo "❌ Error: Cannot cd to frontend directory"
-    exit 1
-}
-
-# Make sure we're in the right directory
-if [ ! -f "package.json" ]; then
-    echo "❌ Error: package.json not found in frontend directory"
-    exit 1
-fi
-
-echo "   ✓ Found package.json"
-echo "   ✓ Checking dependencies..."
-
-# Install dependencies if needed
-if [ ! -d "node_modules" ]; then
-    echo "   Installing npm dependencies (this may take a minute)..."
-    npm install >> /tmp/medstate_frontend.log 2>&1
-fi
-
-# Create .env if needed
-if [ ! -f ".env" ] && [ ! -f ".env.local" ]; then
-    echo "VITE_BACKEND_URL=http://localhost:5001" > .env
-    echo "   ✓ Created .env file"
-fi
-
-# Run frontend script in background
-echo "   Starting Vite dev server..."
-bash ./run_frontend.sh >> /tmp/medstate_frontend.log 2>&1 &
-FRONTEND_PID=$!
-echo "   Frontend PID: $FRONTEND_PID"
-echo "   Waiting for frontend to start..."
-sleep 5
-
-# Check if frontend is actually running
-if ps -p $FRONTEND_PID > /dev/null 2>&1; then
-    echo "   ✓ Frontend process is running"
-else
-    echo "   ⚠️  Warning: Frontend process may have exited"
-    echo "   Check logs: tail -f /tmp/medstate_frontend.log"
-fi
-
-# Wait a bit for frontend to start
 sleep 2
 
-# Start Telegram bot
+# --- Frontend ---
 echo ""
-echo "🤖 Starting Telegram bot..."
-cd "$SCRIPT_DIR/backend"
-./start_bot.sh > /tmp/medstate_bot.log 2>&1 &
-BOT_PID=$!
-echo "   Bot PID: $BOT_PID"
-echo "   Logs: tail -f /tmp/medstate_bot.log"
+echo "[2/3] Frontend (Vite)"
+cd "$FRONTEND_DIR"
+
+if [[ ! -d "node_modules" ]]; then
+  echo "  Installing dependencies..."
+  if command -v bun &>/dev/null; then
+    bun install >> "$FRONTEND_LOG" 2>&1 || true
+  else
+    npm install >> "$FRONTEND_LOG" 2>&1 || true
+  fi
+fi
+
+if [[ ! -f ".env" ]] && [[ ! -f ".env.local" ]]; then
+  echo "VITE_BACKEND_URL=http://localhost:5001" > .env
+  echo "  Created .env"
+fi
+
+if command -v bun &>/dev/null; then
+  bun run dev >> "$FRONTEND_LOG" 2>&1 &
+elif command -v npm &>/dev/null; then
+  npm run dev >> "$FRONTEND_LOG" 2>&1 &
+elif command -v pnpm &>/dev/null; then
+  pnpm dev >> "$FRONTEND_LOG" 2>&1 &
+elif command -v yarn &>/dev/null; then
+  yarn dev >> "$FRONTEND_LOG" 2>&1 &
+else
+  echo "  Error: bun, npm, pnpm, or yarn required"
+  cleanup
+fi
+
+FRONTEND_PID=$!
+echo "  Started (PID $FRONTEND_PID)"
+echo "  Logs: tail -f $FRONTEND_LOG"
+
+sleep 3
+
+# --- Telegram bot (optional) ---
+if [[ "$START_BOT" == "true" ]]; then
+  echo ""
+  echo "[3/3] Telegram bot"
+  cd "$BACKEND_DIR"
+  source venv/bin/activate 2>/dev/null || true
+
+  if [[ -f "$SCRIPT_DIR/.env" ]] && grep -q "TELEGRAM_BOT_TOKEN" "$SCRIPT_DIR/.env" 2>/dev/null; then
+    python3 script.py >> "$BOT_LOG" 2>&1 &
+    BOT_PID=$!
+    echo "  Started (PID $BOT_PID)"
+    echo "  Logs: tail -f $BOT_LOG"
+  else
+    echo "  Skipped (TELEGRAM_BOT_TOKEN not set in .env)"
+  fi
+else
+  echo ""
+  echo "[3/3] Telegram bot: skipped (--no-bot)"
+fi
 
 echo ""
-echo "✅ All services started!"
+echo "Services running:"
+echo "  Backend:  http://localhost:5001"
+echo "  Frontend: http://localhost:8080"
 echo ""
-echo "📊 View logs:"
-echo "   Backend:  tail -f /tmp/medstate_backend.log"
-echo "   Frontend: tail -f /tmp/medstate_frontend.log"
-echo "   Bot:      tail -f /tmp/medstate_bot.log"
+echo "Logs:"
+echo "  Backend:  tail -f $BACKEND_LOG"
+echo "  Frontend: tail -f $FRONTEND_LOG"
+if [[ -n "$BOT_PID" ]]; then
+  echo "  Bot:      tail -f $BOT_LOG"
+fi
 echo ""
-echo "🛑 To stop all services, press Ctrl+C"
+echo "Press Ctrl+C to stop all services."
 echo ""
 
-# Wait for all processes
-wait
+wait 2>/dev/null || true
